@@ -81,6 +81,10 @@
   .shot{margin-top:26px;position:relative;border:1px solid #2A171D;border-radius:2px;overflow:hidden;background:var(--ink2);
     aspect-ratio:16/10;display:flex;align-items:center;justify-content:center}
   .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;filter:saturate(.92) contrast(1.04)}
+  .shot.vid{aspect-ratio:16/10;background:radial-gradient(70% 90% at 50% 40%,#2A0E17,#0B0507 78%);display:flex;align-items:center;justify-content:center}
+  .shot.vid video{height:100%;width:auto;max-width:none;display:block;box-shadow:0 0 0 1px rgba(240,223,174,.18),0 24px 60px rgba(0,0,0,.55);filter:saturate(.95) contrast(1.03)}
+  .shot.vid::before{content:"DEMO";position:absolute;top:10px;left:10px;z-index:2;font-family:var(--f-mono);font-size:9.5px;
+    letter-spacing:.2em;color:var(--gold-hi);border:1px solid rgba(240,223,174,.35);padding:2px 7px;border-radius:2px;background:rgba(9,5,7,.55)}
   .shot .ph{font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;color:var(--steel-d);text-align:center;line-height:2;padding:20px}
   .shot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(9,5,7,.88));pointer-events:none}
   .meta{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em}
@@ -266,7 +270,7 @@ const P=[
   m:["LIVE","Canvas","기기 내 처리","65 tests"],img:IMG_PHOTO,link:"https://photo-atelier.vercel.app"},
  {n:"손안의여름",t:"투표가 일정이 되고<br>일정이 정산이 된다",
   d:"여행 코스 투표 결과가 그대로 일정이 되고, 일정이 그대로 더치페이 항목이 됩니다. 동시 체크인에서 카운트가 어긋나 RPC 단위 원자적 갱신으로 고쳤습니다. 심의 통과 후 운영 중.",
-  m:["LIVE","Granite SPA","108 tests","심의 통과"],img:null,link:"https://sonanui-yeoreum.vercel.app"},
+  m:["LIVE","Granite SPA","108 tests","심의 통과"],img:null,vid:"media/summer.mp4",link:"https://sonanui-yeoreum.vercel.app"},
  {n:"내돈부터",t:"이번 달 며칠째부터<br>내 돈인가",
   d:"자영업자가 매일 매출 하나만 넣으면 손익분기 넘긴 날을 알려줍니다. 이 계산이 틀리면 앱 전체가 거짓말이라 계산 함수에만 테스트를 몰아넣었습니다. 약관 5종·동의·연결 끊기까지 직접 처리.",
   m:["인증서 대기","78 tests","약관 5종"],img:null,link:null},
@@ -278,7 +282,7 @@ const P=[
   m:["등록 대기","240 문항","E2E 검증"],img:null,link:null},
  {n:"탁카",t:"전화로 거래되던 탁송을<br>화면 위로 올렸다",
   d:"카 캐리어 탁송 중개. KYC와 이용료 결제를 매칭 앞단에 두어 신원과 지불 의사를 먼저 확인합니다. 미니앱으로 시작했다가 스토어 앱으로 방향을 틀며 인증·라우팅을 다시 설계했습니다.",
-  m:["스토어 준비","Expo RN","토스페이먼츠","52 tests"],img:null,link:"https://takca.vercel.app"},
+  m:["스토어 준비","Expo RN","토스페이먼츠","52 tests"],img:null,vid:"media/takca.mp4",link:"https://takca.vercel.app"},
  {n:"SevMerge",t:"돈이 두 번 움직이는<br>구조를 나눠 잡았다",
   d:"7명이 4주간 만든 역제안 입찰 플랫폼. 카드 결제는 잔액만 올리고, 프로젝트 대금은 에스크로가 따로 관리하도록 계층을 분리했습니다. 동시 작업 중 순환 참조를 피하려 상태 변경은 JPQL로 직접 처리했습니다.",
   m:["팀 7명","Java 21","Spring Boot","커밋 115"],img:null,link:"https://github.com/manabout-town/SevMerge"}
@@ -290,7 +294,7 @@ track.innerHTML=P.map((p,i)=>`
     <span class="bignum">${String(i+1).padStart(2,"0")}</span>
     <div class="idx"><s>${String(i+1).padStart(2,"0")}</s><span>${p.n}</span></div>
     <h2>${p.t}</h2>
-    <div class="shot">${p.img?`<img src="${p.img}" alt="${p.n} 화면">`:`<span class="ph">실행 화면 자리<br>토스 미니앱은 토스 앱 안에서만 로그인됩니다<br>녹화 데모로 대체 예정</span>`}</div>
+    <div class="shot ${p.vid?"vid":""}">${p.vid?`<video src="${p.vid}" autoplay muted loop playsinline preload="metadata" aria-label="${p.n} 실행 데모"></video>`:p.img?`<img src="${p.img}" alt="${p.n} 화면">`:`<span class="ph">실행 화면 자리<br>토스 미니앱은 토스 앱 안에서만 로그인됩니다<br>녹화 데모로 대체 예정</span>`}</div>
     <p>${p.d}</p>
     <div class="meta">${p.m.map((x,j)=>`<span class="${j===0&&x==="LIVE"?"on":""}">${x}</span>`).join("")}</div>
     ${p.link?`<a class="go" href="${p.link}" target="_blank" rel="noopener">열어보기 ↗</a>`:""}
@@ -319,7 +323,7 @@ track.innerHTML=P.map((p,i)=>`
       if(a<nd){nd=a;near=i;}
       c.style.transform=`translate3d(0,${(a*22).toFixed(1)}px,0) rotateY(${(-o*8).toFixed(2)}deg) scale(${(1-Math.min(.14,a*.17)).toFixed(3)})`;
       c.style.opacity=(1-Math.min(.62,Math.max(0,a-.12)*.85)).toFixed(3);
-      const im=c.querySelector(".shot img")||c.querySelector(".shot .ph");
+      const im=c.querySelector(".shot img")||c.querySelector(".shot video")||c.querySelector(".shot .ph");
       if(im) im.style.transform=`translate3d(${(o*-26).toFixed(1)}px,0,0) scale(1.06)`;
     });
     if(near!==null && near!==lastNear){ lastNear=near; label.textContent=String(near+1).padStart(2,"0")+" / "+String(P.length).padStart(2,"0")+" · "+P[near].n; }
