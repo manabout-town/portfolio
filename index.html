@@ -147,6 +147,44 @@
   .plabel{position:fixed;left:clamp(18px,4vw,54px);bottom:16px;z-index:41;font-family:var(--f-mono);font-size:10.5px;
     letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hi);opacity:.0;transition:opacity .3s}
   .plabel.on{opacity:.85}
+
+  /* ── 케이스 오버레이 ── */
+  .card{cursor:pointer}
+  .card .more{margin-top:18px;display:inline-flex;gap:9px;align-items:center;font-family:var(--f-mono);font-size:11px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--gold);background:none;border:0;padding:0;cursor:pointer}
+  .card .more::after{content:"";width:26px;height:1px;background:var(--gold);transition:width .25s}
+  .card:hover .more::after{width:44px}
+
+  #scrim{position:fixed;inset:0;z-index:70;background:rgba(5,2,3,.72);backdrop-filter:blur(7px);opacity:0;
+    pointer-events:none;transition:opacity .32s}
+  #scrim.on{opacity:1;pointer-events:auto}
+  #sheet{position:fixed;z-index:71;background:linear-gradient(180deg,#140A0E,#0B0507);border:1px solid #33202A;
+    border-radius:3px;overflow:hidden;pointer-events:none;opacity:0}
+  #sheet.on{pointer-events:auto;opacity:1}
+  #sheet .inner{height:100%;overflow-y:auto;padding:clamp(24px,3.4vw,52px)}
+  #sheet .inner::-webkit-scrollbar{width:8px}
+  #sheet .inner::-webkit-scrollbar-thumb{background:#33202A}
+  #sheet .close{position:absolute;top:14px;right:16px;z-index:2;background:none;border:1px solid #3B2530;color:var(--gold-hi);
+    font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;padding:7px 13px;border-radius:2px;cursor:pointer}
+  #sheet .close:hover{border-color:var(--gold);background:rgba(198,162,83,.09)}
+  #sheet h3{margin:10px 0 0;font-size:clamp(24px,3.2vw,46px);line-height:1.06;letter-spacing:-.04em;font-weight:760;text-wrap:balance}
+  #sheet .eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
+  #sheet .grid{margin-top:clamp(20px,2.6vw,36px);display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+    gap:clamp(22px,3vw,46px);align-items:start}
+  @media (max-width:900px){ #sheet .grid{grid-template-columns:1fr} }
+  #sheet .media{border:1px solid #2A171D;border-radius:2px;overflow:hidden;background:radial-gradient(70% 90% at 50% 40%,#2A0E17,#0B0507 78%);
+    display:flex;align-items:center;justify-content:center;aspect-ratio:3/4}
+  #sheet .media video,#sheet .media img{height:100%;width:auto;max-width:100%;object-fit:contain;display:block}
+  #sheet .media .none{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--steel-d);text-align:center;line-height:2;padding:24px}
+  #sheet .blocks{display:flex;flex-direction:column;gap:clamp(18px,2.2vw,30px)}
+  #sheet .blocks h4{margin:0 0 7px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  #sheet .blocks p{margin:0;max-width:58ch;color:#C9B7B0;font-size:15px;line-height:1.78}
+  #sheet .foot{margin-top:clamp(22px,2.6vw,38px);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  #sheet .foot .meta span{border:1px solid #332027;color:var(--steel);padding:4px 9px;border-radius:2px;font-family:var(--f-mono);font-size:10.5px}
+  #sheet .foot a{margin-left:auto;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+    text-decoration:none;color:var(--white);border:1px solid var(--gold);padding:9px 18px;border-radius:2px}
+  #sheet .foot a:hover{background:var(--gold);color:#100609}
+  @media (prefers-reduced-motion:reduce){ #sheet{transition:none!important} }
 </style>
 
 <canvas id="bg"></canvas>
@@ -157,6 +195,8 @@
 <div id="intro"><i></i></div>
 <div class="prog"><i id="progbar"></i></div>
 <div class="plabel" id="plabel"></div>
+<div id="scrim"></div>
+<div id="sheet" role="dialog" aria-modal="true" aria-label="프로젝트 상세"></div>
 
 <main>
   <section class="hero">
@@ -261,6 +301,7 @@ const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
 })();
 
 /* ─────────── 프로젝트 ─────────── */
+const CASES={"유라연": [["문제", "오픈마켓 수수료와 획일적인 상세페이지 때문에 '주문이 들어오면 그때부터 손으로 만든다'는 이야기가 전달되지 않았습니다."], ["선택", "판매자가 코드를 몰라도 운영할 수 있어야 했습니다. 상품 등록·이미지 업로드·품절 처리·주문 취소를 전부 관리자 화면 안에서 끝나도록 설계했습니다."], ["까다로웠던 것", "아이용 제품이라 어린이제품 KC 안전정보 표기 의무가 있었습니다. 법적 요구사항을 화면 정책으로 옮겨, 신고번호가 비어 있으면 상품이 노출되지 않도록 막았습니다."], ["지금", "실제 상품 6종으로 운영 중. 찜·리뷰 사진·재입고 알림·주문 취소까지 동작합니다."]], "포토 아뜰리에": [["문제", "보정 앱 대부분이 원본 사진을 서버로 업로드합니다. 얼굴 사진을 남의 서버에 올리는 데 거부감이 있는 사용자가 많습니다."], ["선택", "업로드 경로를 아예 만들지 않았습니다. 필터·프레임·보정을 전부 브라우저 Canvas 파이프라인에서 처리하고, 결과물도 로컬에서 내려받습니다. 서버가 없으니 유출될 것도 없습니다."], ["지금", "필터 43종·프레임 28종·보정 슬라이더 8개, 사진 진단 기능까지 붙여 v3.2 운영 중. 필터 파이프라인은 65개 테스트로 고정했습니다."]], "손안의여름": [["문제", "여행 조율이 메신저·지도·정산앱 세 곳으로 흩어져 아무도 전체를 보지 못했습니다."], ["선택", "데이터를 하나로 이었습니다. 코스 투표 결과가 곧 일정이 되고, 일정이 곧 정산 항목이 됩니다. 따로 옮겨 적는 단계를 없앴습니다."], ["까다로웠던 것", "여러 명이 동시에 물 마시기를 체크하면 카운트가 어긋났습니다. 클라이언트에서 증가시키던 것을 RPC 단위 원자적 갱신으로 옮겨 해결했습니다."], ["지금", "심의 통과 후 운영 중. 108개 테스트와 2인 실시간 검증을 거쳤습니다."]], "내돈부터": [["문제", "사장님들은 월말 정산 전까지 이번 달이 흑자인지 적자인지 모릅니다. 회계 앱은 입력할 항목이 너무 많아 며칠 만에 그만두게 됩니다."], ["선택", "매일 입력하는 값을 매출 하나로 줄였습니다. 고정비는 최초 1회만 받습니다. 백엔드는 저장만 하고 손익분기 계산은 클라이언트에서 하며, 이 계산이 틀리면 앱 전체가 거짓말이라 테스트를 그 함수에만 몰아넣었습니다."], ["까다로웠던 것", "개인정보 약관 5종과 동의 화면, 토스 연결 끊기 콜백까지 직접 붙였습니다. 약관에 적은 3영업일 회신은 혼자 지킬 수 있는 범위로만 썼습니다."], ["지금", "78개 테스트 통과, 코드는 완료. mTLS 클라이언트 인증서 발급 후 실기기 검증만 남았습니다."]], "데브핏": [["문제", "자격증 문제집은 한 번에 많은 양을 요구해서 출퇴근 시간에 이어 붙이기 어렵습니다."], ["선택", "한 세션을 5분 길이로 끊고, 하트와 스트릭으로 다음 날 다시 오게 만들었습니다. 인증은 mTLS가 필요 없는 익명 키 방식으로 바꿔 심사 조건을 맞췄습니다."], ["지금", "정보처리기사 DB 과목 240문항 시드와 오답 흐름 E2E 검증 완료. 토스 콘솔 등록만 남았습니다."]], "탁카": [["문제", "카 캐리어 탁송은 전화와 카페 게시글로 거래돼 가격과 신원이 불투명했습니다."], ["선택", "KYC와 이용료 결제를 매칭 앞단에 두었습니다. 연결되기 전에 신원과 지불 의사가 확인되므로, 매칭 이후의 분쟁이 줄어듭니다."], ["까다로웠던 것", "미니앱으로 시작했다가 스토어 앱으로 방향을 틀었습니다. 웹 기준으로 짠 화면을 React Native로 옮기며 라우팅과 인증 흐름을 다시 설계했습니다."], ["지금", "웹 버전은 운영 중, 스토어 앱은 이메일 인증·매칭·이용료 결제·KYC까지 구현했습니다."]], "SevMerge": [["문제", "돈이 오가는 서비스인데 결제 실패와 프로젝트 환불이 같은 흐름에 묶여 있으면 취소 한 번에 정산이 깨집니다."], ["선택", "계층을 둘로 나눴습니다. 카드 결제는 ChargeService에서만 일어나 회원 잔액을 올리고, 프로젝트 대금은 그 잔액을 묶어두는 에스크로가 따로 관리합니다."], ["까다로웠던 것", "7명이 동시에 각자 도메인을 고치는 상황이었습니다. PaymentService가 다른 서비스를 주입받지 않게 하고 상태 변경을 JPQL로 직접 처리해, 순환 참조와 머지 충돌을 함께 피했습니다."], ["결과", "정산 시 수수료 10% 차감, 환불 시 의뢰인 잔액 복구까지 동작합니다. 브랜치 충돌은 직접 병합해 양쪽 기능을 모두 살렸습니다."]]};
 const P=[
  {n:"유라연",t:"수제 헤어핀 가게를<br>오픈마켓 밖으로 꺼냈다",
   d:"주문이 들어와야 만들기 시작하는 가게. 상품 등록·이미지 업로드·품절·주문 취소·재입고 알림까지 판매자가 코드 없이 운영합니다. 아이용 제품이라 어린이제품 KC 안전정보를 화면 정책으로 강제했습니다.",
@@ -294,7 +335,8 @@ track.innerHTML=P.map((p,i)=>`
     <div class="shot ${p.vid?"vid":""}">${p.vid?`<video src="${p.vid}" autoplay muted loop playsinline preload="metadata" aria-label="${p.n} 실행 데모"></video>`:p.img?`<img src="${p.img}" alt="${p.n} 화면">`:`<span class="ph">토스 앱 안에서만 로그인이 열립니다<br>인증서 발급 후 실행 데모를 넣습니다</span>`}</div>
     <p>${p.d}</p>
     <div class="meta">${p.m.map((x,j)=>`<span class="${j===0&&x==="LIVE"?"on":""}">${x}</span>`).join("")}</div>
-    ${p.link?`<a class="go" href="${p.link}" target="_blank" rel="noopener">열어보기 ↗</a>`:""}
+    <div class="cardfoot">${p.link?`<a class="go" href="${p.link}" target="_blank" rel="noopener">열어보기 ↗</a>`:""}</div>
+    <button class="more" data-open="${i}">자세히 보기</button>
   </article>`).join("");
 
 /* ─────────── 스크롤 → 가로 이동 ─────────── */
@@ -302,14 +344,19 @@ track.innerHTML=P.map((p,i)=>`
   if(RM) return;
   const pin=document.getElementById("pin"),bar=document.getElementById("progbar"),label=document.getElementById("plabel");
   const cards=[...track.children];
-  let cx=0,lastNear=-1;
+  let cx=0,lastNear=-1,lastX=-1,settled=false;
   function tick(){
     const r=pin.getBoundingClientRect();
     const span=pin.offsetHeight-innerHeight;
     const prog=Math.min(1,Math.max(0,-r.top/span));
     const max=track.scrollWidth-innerWidth+innerWidth*0.06;
-    cx+=(prog*max-cx)*.09;
-    track.style.transform=`translate3d(${-cx}px,0,0)`;
+    const target=prog*max;
+    const dx=target-cx;
+    if(Math.abs(dx)<0.12){ cx=target; } else { cx+=dx*.09; }
+    const moved=Math.abs(cx-lastX)>0.05;
+    if(moved){ track.style.transform=`translate3d(${-cx}px,0,0)`; lastX=cx; }
+    else if(settled){ requestAnimationFrame(tick); return; }
+    settled=!moved;
     bar.style.width=(prog*100).toFixed(2)+"%";
 
     const mid=innerWidth/2; let near=null,nd=1e9;
@@ -346,6 +393,63 @@ track.innerHTML=P.map((p,i)=>`
   });
   addEventListener("resize",()=>{els=targets();});
 })();
+/* ─────────── 케이스 상세 (FLIP) ─────────── */
+(function(){
+  const scrim=document.getElementById("scrim"), sheet=document.getElementById("sheet");
+  let openIdx=-1, lastCard=null;
+  const ease="cubic-bezier(.16,1,.3,1)";
+
+  function media(p){
+    if(p.vid) return `<video src="${p.vid}" autoplay muted loop playsinline></video>`;
+    if(p.img) return `<img src="${p.img}" alt="${p.n} 화면">`;
+    return `<span class="none">실행 화면 없음<br>${p.n==="SevMerge"?"팀 레포에서 코드로 확인할 수 있습니다":"토스 앱 안에서만 로그인이 열립니다"}</span>`;
+  }
+  function open(i, card){
+    const p=P[i]; openIdx=i; lastCard=card;
+    const blocks=(CASES[p.n]||[]).map(b=>`<section><h4>${b[0]}</h4><p>${b[1]}</p></section>`).join("");
+    sheet.innerHTML=`<button class="close" type="button">닫기 ESC</button><div class="inner">
+      <p class="eyebrow">${String(i+1).padStart(2,"0")} · ${p.n}</p>
+      <h3>${p.t}</h3>
+      <div class="grid"><div class="media">${media(p)}</div>
+      <div class="blocks">${blocks}</div></div>
+      <div class="foot"><div class="meta">${p.m.map(x=>`<span>${x}</span>`).join("")}</div>
+      ${p.link?`<a href="${p.link}" target="_blank" rel="noopener">열어보기 ↗</a>`:""}</div></div>`;
+
+    const from=card.getBoundingClientRect();
+    const pad=Math.min(64, innerWidth*0.05);
+    const W=Math.min(1180, innerWidth-pad*2), H=Math.min(innerHeight-pad*2, 860);
+    const L=(innerWidth-W)/2, T=(innerHeight-H)/2;
+    Object.assign(sheet.style,{left:from.left+"px",top:from.top+"px",width:from.width+"px",height:from.height+"px",transition:"none"});
+    sheet.classList.add("on"); scrim.classList.add("on");
+    document.body.style.overflow="hidden";
+    requestAnimationFrame(()=>{
+      sheet.style.transition=`left .5s ${ease}, top .5s ${ease}, width .5s ${ease}, height .5s ${ease}`;
+      Object.assign(sheet.style,{left:L+"px",top:T+"px",width:W+"px",height:H+"px"});
+      sheet.querySelector(".close").focus();
+    });
+  }
+  function close(){
+    if(openIdx<0) return;
+    const to=lastCard?lastCard.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/2,width:0,height:0};
+    Object.assign(sheet.style,{left:to.left+"px",top:to.top+"px",width:to.width+"px",height:to.height+"px"});
+    scrim.classList.remove("on");
+    sheet.style.opacity="0";
+    setTimeout(()=>{ sheet.classList.remove("on"); sheet.style.opacity=""; sheet.innerHTML=""; },420);
+    document.body.style.overflow=""; openIdx=-1;
+  }
+  document.addEventListener("click",e=>{
+    const btn=e.target.closest("[data-open]");
+    if(btn){ e.preventDefault(); open(+btn.dataset.open, btn.closest(".card")); return; }
+    if(e.target.closest("#sheet .close") || e.target===scrim){ close(); return; }
+    const card=e.target.closest(".card");
+    if(card && !e.target.closest("a") && openIdx<0){
+      const i=[...document.querySelectorAll(".card")].indexOf(card);
+      if(i>=0) open(i, card);
+    }
+  });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape") close(); });
+})();
+
 </script>
 
 </body>
