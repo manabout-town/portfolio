@@ -185,6 +185,10 @@
     text-decoration:none;color:var(--white);border:1px solid var(--gold);padding:9px 18px;border-radius:2px}
   #sheet .foot a:hover{background:var(--gold);color:#100609}
   @media (prefers-reduced-motion:reduce){ #sheet{transition:none!important} }
+
+  /* 커서 트레일 */
+  .trail{position:fixed;top:0;left:0;z-index:58;width:6px;height:6px;border-radius:50%;pointer-events:none;
+    background:var(--gold);mix-blend-mode:screen;transform:translate(-50%,-50%);will-change:transform,opacity}
 </style>
 
 <canvas id="bg"></canvas>
@@ -448,6 +452,53 @@ track.innerHTML=P.map((p,i)=>`
     }
   });
   document.addEventListener("keydown",e=>{ if(e.key==="Escape") close(); });
+})();
+
+/* ─────────── 커서 트레일 ─────────── */
+(function(){
+  if(RM || matchMedia("(max-width:640px)").matches) return;
+  const N=9, dots=[];
+  for(let i=0;i<N;i++){
+    const d=document.createElement("div"); d.className="trail";
+    const k=1-i/N;
+    d.style.opacity=(k*0.5).toFixed(2);
+    d.style.width=d.style.height=(2+k*5).toFixed(1)+"px";
+    document.body.appendChild(d); dots.push({el:d,x:innerWidth/2,y:innerHeight/2});
+  }
+  let mx=innerWidth/2,my=innerHeight/2;
+  addEventListener("pointermove",e=>{mx=e.clientX;my=e.clientY;});
+  (function loop(){
+    let px=mx,py=my;
+    for(const d of dots){
+      d.x+=(px-d.x)*.34; d.y+=(py-d.y)*.34;
+      d.el.style.transform=`translate(${d.x.toFixed(1)}px,${d.y.toFixed(1)}px) translate(-50%,-50%)`;
+      px=d.x; py=d.y;
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ─────────── 카드 단위 스냅 ─────────── */
+(function(){
+  if(RM) return;
+  const pin=document.getElementById("pin");
+  let t=null, animating=false;
+  addEventListener("scroll",()=>{
+    if(animating) return;
+    clearTimeout(t);
+    t=setTimeout(()=>{
+      const r=pin.getBoundingClientRect(), span=pin.offsetHeight-innerHeight;
+      const prog=-r.top/span;
+      if(prog<0.02||prog>0.98) return;
+      const n=P.length-1;
+      const i=Math.round(prog*n);
+      const targetY=pin.offsetTop+(i/n)*span;
+      if(Math.abs(targetY-scrollY)<6) return;
+      animating=true;
+      scrollTo({top:targetY,behavior:"smooth"});
+      setTimeout(()=>{animating=false;},700);
+    },170);
+  },{passive:true});
 })();
 
 </script>
