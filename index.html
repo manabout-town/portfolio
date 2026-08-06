@@ -192,6 +192,61 @@
   /* 커서 트레일 */
   .trail{position:fixed;top:0;left:0;z-index:58;width:6px;height:6px;border-radius:50%;pointer-events:none;
     background:var(--gold);mix-blend-mode:screen;transform:translate(-50%,-50%);will-change:transform,opacity}
+
+  /* ── 터미널 스트림 ── */
+  .term{position:relative;height:620vh}
+  .termstick{position:sticky;top:0;height:100svh;display:flex;align-items:center;justify-content:center;
+    padding:clamp(18px,4vw,54px)}
+  .termwin{width:min(1000px,100%);height:min(74vh,640px);display:flex;flex-direction:column;
+    background:linear-gradient(180deg,rgba(20,10,14,.94),rgba(9,5,7,.96));border:1px solid #33202A;border-radius:5px;
+    box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 1px rgba(240,223,174,.06)}
+  .termbar{display:flex;align-items:center;gap:9px;padding:11px 14px;border-bottom:1px solid #2A171D;
+    font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--steel)}
+  .termbar i{width:9px;height:9px;border-radius:50%;background:#3B2530;display:block}
+  .termbar i:first-child{background:#7B1B2E}
+  .termbar i:nth-child(2){background:#8A6A2A}
+  .termbar i:nth-child(3){background:#2F5D45}
+  .termbar span{margin-left:8px}
+  .termbar b{margin-left:auto;font-weight:400;color:var(--gold);font-variant-numeric:tabular-nums}
+  .termout{margin:0;flex:1;overflow:hidden;padding:16px clamp(14px,2vw,26px);font-family:var(--f-mono);
+    font-size:clamp(11.5px,1.05vw,14px);line-height:1.95;white-space:pre-wrap;word-break:break-word}
+  .termout div{opacity:0;transform:translateY(4px)}
+  .termout div.on{opacity:1;transform:none;transition:opacity .18s,transform .18s}
+  .l-cmd{color:var(--white)}
+  .l-cmd::before{content:"$ ";color:var(--gold)}
+  .l-dim{color:#8A7A74}
+  .l-ok{color:#7FCBA4}
+  .l-ok::before{content:"✓ ";color:#7FCBA4}
+  .l-run::before{content:"› ";color:var(--gold)}
+  .l-run{color:#C9B7B0}
+  .l-warn{color:var(--gold-hi)}
+  .l-warn::before{content:"! ";color:var(--gold)}
+  .l-url{color:var(--gold-hi)}
+  .caret{display:inline-block;width:8px;height:1.05em;background:var(--gold);vertical-align:-2px;animation:blink 1.05s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  /* ── 커맨드 팔레트 ── */
+  #pal{position:fixed;inset:0;z-index:90;display:none;align-items:flex-start;justify-content:center;
+    padding-top:14vh;background:rgba(5,2,3,.66);backdrop-filter:blur(6px)}
+  #pal.on{display:flex}
+  #palbox{width:min(560px,92vw);background:#120A0E;border:1px solid #3B2530;border-radius:4px;overflow:hidden;
+    box-shadow:0 40px 120px rgba(0,0,0,.7)}
+  #palin{width:100%;background:none;border:0;border-bottom:1px solid #2A171D;color:var(--white);
+    font-family:var(--f-mono);font-size:14px;padding:15px 18px;outline:none}
+  #palin::placeholder{color:#6E5A54}
+  #pallist{max-height:46vh;overflow-y:auto}
+  #pallist button{display:flex;width:100%;gap:12px;align-items:center;background:none;border:0;cursor:pointer;
+    padding:11px 18px;font:inherit;color:#C9B7B0;text-align:left;font-family:var(--f-mono);font-size:13px}
+  #pallist button[aria-selected=true]{background:rgba(198,162,83,.12);color:var(--white)}
+  #pallist button s{text-decoration:none;color:var(--gold);min-width:2.2ch}
+  #pallist button em{margin-left:auto;font-style:normal;font-size:10.5px;letter-spacing:.12em;color:var(--steel)}
+  .hint{position:fixed;right:16px;bottom:14px;z-index:42;font-family:var(--f-mono);font-size:10.5px;
+    letter-spacing:.14em;color:var(--steel-d);pointer-events:none}
+  .hint b{color:var(--gold);font-weight:400}
+  @media (max-width:640px){ .hint{display:none} .term{height:auto} .termstick{position:static;height:auto}
+    .termwin{height:auto} .termout{overflow:visible} }
+  @media (prefers-reduced-motion:reduce){ .term{height:auto} .termstick{position:static;height:auto}
+    .termwin{height:auto} .termout{overflow:visible} .termout div{opacity:1;transform:none} .caret{animation:none} }
 </style>
 
 <canvas id="bg"></canvas>
@@ -201,6 +256,8 @@
 <div id="cur"></div>
 <div id="intro"><i></i></div>
 <div class="prog"><i id="progbar"></i></div>
+<div class="hint"><b>⌘K</b> 프로젝트 · <b>J/K</b> 이동</div>
+<div id="pal" role="dialog" aria-modal="true" aria-label="프로젝트 찾기"><div id="palbox"><input id="palin" placeholder="프로젝트 이름을 입력하세요…" autocomplete="off" spellcheck="false"><div id="pallist"></div></div></div>
 <div class="plabel" id="plabel"></div>
 <div id="scrim"></div>
 <div id="sheet" role="dialog" aria-modal="true" aria-label="프로젝트 상세"></div>
@@ -226,6 +283,15 @@
       </div>
     </div>
     <div class="scrollcue"><i></i>Scroll to open the line</div>
+  </section>
+
+  <section class="term" id="term">
+    <div class="termstick">
+      <div class="termwin">
+        <div class="termbar"><i></i><i></i><i></i><span>~/shipped — zsh</span><b id="termpct">0%</b></div>
+        <pre class="termout" id="termout"></pre>
+      </div>
+    </div>
   </section>
 
   <section class="pin" id="pin">
@@ -310,25 +376,25 @@ const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
 /* ─────────── 프로젝트 ─────────── */
 const CASES={"유라연": [["문제", "오픈마켓 수수료와 획일적인 상세페이지 때문에 '주문이 들어오면 그때부터 손으로 만든다'는 이야기가 전달되지 않았습니다."], ["선택", "판매자가 코드를 몰라도 운영할 수 있어야 했습니다. 상품 등록·이미지 업로드·품절 처리·주문 취소를 전부 관리자 화면 안에서 끝나도록 설계했습니다."], ["까다로웠던 것", "아이용 제품이라 어린이제품 KC 안전정보 표기 의무가 있었습니다. 법적 요구사항을 화면 정책으로 옮겨, 신고번호가 비어 있으면 상품이 노출되지 않도록 막았습니다."], ["지금", "실제 상품 6종으로 운영 중. 찜·리뷰 사진·재입고 알림·주문 취소까지 동작합니다."]], "포토 아뜰리에": [["문제", "보정 앱 대부분이 원본 사진을 서버로 업로드합니다. 얼굴 사진을 남의 서버에 올리는 데 거부감이 있는 사용자가 많습니다."], ["선택", "업로드 경로를 아예 만들지 않았습니다. 필터·프레임·보정을 전부 브라우저 Canvas 파이프라인에서 처리하고, 결과물도 로컬에서 내려받습니다. 서버가 없으니 유출될 것도 없습니다."], ["지금", "필터 43종·프레임 28종·보정 슬라이더 8개, 사진 진단 기능까지 붙여 v3.2 운영 중. 필터 파이프라인은 65개 테스트로 고정했습니다."]], "손안의여름": [["문제", "여행 조율이 메신저·지도·정산앱 세 곳으로 흩어져 아무도 전체를 보지 못했습니다."], ["선택", "데이터를 하나로 이었습니다. 코스 투표 결과가 곧 일정이 되고, 일정이 곧 정산 항목이 됩니다. 따로 옮겨 적는 단계를 없앴습니다."], ["까다로웠던 것", "여러 명이 동시에 물 마시기를 체크하면 카운트가 어긋났습니다. 클라이언트에서 증가시키던 것을 RPC 단위 원자적 갱신으로 옮겨 해결했습니다."], ["지금", "심의 통과 후 운영 중. 108개 테스트와 2인 실시간 검증을 거쳤습니다."]], "내돈부터": [["문제", "사장님들은 월말 정산 전까지 이번 달이 흑자인지 적자인지 모릅니다. 회계 앱은 입력할 항목이 너무 많아 며칠 만에 그만두게 됩니다."], ["선택", "매일 입력하는 값을 매출 하나로 줄였습니다. 고정비는 최초 1회만 받습니다. 백엔드는 저장만 하고 손익분기 계산은 클라이언트에서 하며, 이 계산이 틀리면 앱 전체가 거짓말이라 테스트를 그 함수에만 몰아넣었습니다."], ["까다로웠던 것", "개인정보 약관 5종과 동의 화면, 토스 연결 끊기 콜백까지 직접 붙였습니다. 약관에 적은 3영업일 회신은 혼자 지킬 수 있는 범위로만 썼습니다."], ["지금", "78개 테스트 통과, 코드는 완료. mTLS 클라이언트 인증서 발급 후 실기기 검증만 남았습니다."]], "데브핏": [["문제", "자격증 문제집은 한 번에 많은 양을 요구해서 출퇴근 시간에 이어 붙이기 어렵습니다."], ["선택", "한 세션을 5분 길이로 끊고, 하트와 스트릭으로 다음 날 다시 오게 만들었습니다. 인증은 mTLS가 필요 없는 익명 키 방식으로 바꿔 심사 조건을 맞췄습니다."], ["지금", "정보처리기사 DB 과목 240문항 시드와 오답 흐름 E2E 검증 완료. 토스 콘솔 등록만 남았습니다."]], "탁카": [["문제", "카 캐리어 탁송은 전화와 카페 게시글로 거래돼 가격과 신원이 불투명했습니다."], ["선택", "KYC와 이용료 결제를 매칭 앞단에 두었습니다. 연결되기 전에 신원과 지불 의사가 확인되므로, 매칭 이후의 분쟁이 줄어듭니다."], ["까다로웠던 것", "미니앱으로 시작했다가 스토어 앱으로 방향을 틀었습니다. 웹 기준으로 짠 화면을 React Native로 옮기며 라우팅과 인증 흐름을 다시 설계했습니다."], ["지금", "웹 버전은 운영 중, 스토어 앱은 이메일 인증·매칭·이용료 결제·KYC까지 구현했습니다."]], "SevMerge": [["문제", "돈이 오가는 서비스인데 결제 실패와 프로젝트 환불이 같은 흐름에 묶여 있으면 취소 한 번에 정산이 깨집니다."], ["선택", "계층을 둘로 나눴습니다. 카드 결제는 ChargeService에서만 일어나 회원 잔액을 올리고, 프로젝트 대금은 그 잔액을 묶어두는 에스크로가 따로 관리합니다."], ["까다로웠던 것", "7명이 동시에 각자 도메인을 고치는 상황이었습니다. PaymentService가 다른 서비스를 주입받지 않게 하고 상태 변경을 JPQL로 직접 처리해, 순환 참조와 머지 충돌을 함께 피했습니다."], ["결과", "정산 시 수수료 10% 차감, 환불 시 의뢰인 잔액 복구까지 동작합니다. 브랜치 충돌은 직접 병합해 양쪽 기능을 모두 살렸습니다."]]};
 const P=[
- {n:"유라연",t:"수제 헤어핀 가게를<br>오픈마켓 밖으로 꺼냈다",
+ {n:"유라연",st:"운영 중",t:"수제 헤어핀 가게를<br>오픈마켓 밖으로 꺼냈다",
   d:"주문이 들어와야 만들기 시작하는 가게. 상품 등록·이미지 업로드·품절·주문 취소·재입고 알림까지 판매자가 코드 없이 운영합니다. 아이용 제품이라 어린이제품 KC 안전정보를 화면 정책으로 강제했습니다.",
   m:["LIVE","Next.js 16","Supabase","실제 판매 중"],img:IMG_HAIRPIN,link:"https://hairpin-shop.vercel.app"},
- {n:"포토 아뜰리에",t:"사진을 서버로<br>보내지 않는 보정 앱",
+ {n:"포토 아뜰리에",st:"운영 중",t:"사진을 서버로<br>보내지 않는 보정 앱",
   d:"필터 43종·프레임 28종·보정 슬라이더 8개. 업로드 경로를 아예 만들지 않고 Canvas에서 전부 처리합니다. 얼굴 사진을 남의 서버에 올리지 않아도 되는 것이 이 앱의 기능입니다.",
   m:["LIVE","Canvas","기기 내 처리","65 tests"],img:IMG_PHOTO,link:"https://photo-atelier.vercel.app"},
- {n:"손안의여름",t:"투표가 일정이 되고<br>일정이 정산이 된다",
+ {n:"손안의여름",st:"운영 중",t:"투표가 일정이 되고<br>일정이 정산이 된다",
   d:"여행 코스 투표 결과가 그대로 일정이 되고, 일정이 그대로 더치페이 항목이 됩니다. 동시 체크인에서 카운트가 어긋나 RPC 단위 원자적 갱신으로 고쳤습니다. 심의 통과 후 운영 중.",
   m:["LIVE","Granite SPA","108 tests","심의 통과"],img:null,vid:"media/summer.mp4",link:"https://sonanui-yeoreum.vercel.app"},
- {n:"내돈부터",t:"이번 달 며칠째부터<br>내 돈인가",
+ {n:"내돈부터",st:"인증서 대기",t:"이번 달 며칠째부터<br>내 돈인가",
   d:"자영업자가 매일 매출 하나만 넣으면 손익분기 넘긴 날을 알려줍니다. 이 계산이 틀리면 앱 전체가 거짓말이라 계산 함수에만 테스트를 몰아넣었습니다. 약관 5종·동의·연결 끊기까지 직접 처리.",
   m:["인증서 대기","78 tests","약관 5종"],img:null,vid:"media/naedon.mp4",link:null},
- {n:"데브핏",t:"정보처리기사를<br>듀오링고처럼",
+ {n:"데브핏",st:"등록 대기",t:"정보처리기사를<br>듀오링고처럼",
   d:"한 세션을 출퇴근 길이로 쪼갠 자격증 학습 앱. DB 과목 240문항 시드와 오답 흐름 검증까지 마쳤고, 인증을 익명 키 방식으로 바꿔 심사 조건을 맞췄습니다.",
   m:["등록 대기","240 문항","E2E 검증"],img:null,vid:"media/devfit.mp4",link:null},
- {n:"탁카",t:"전화로 거래되던 탁송을<br>화면 위로 올렸다",
+ {n:"탁카",st:"스토어 준비",t:"전화로 거래되던 탁송을<br>화면 위로 올렸다",
   d:"카 캐리어 탁송 중개. KYC와 이용료 결제를 매칭 앞단에 두어 신원과 지불 의사를 먼저 확인합니다. 미니앱으로 시작했다가 스토어 앱으로 방향을 틀며 인증·라우팅을 다시 설계했습니다.",
   m:["스토어 준비","Expo RN","토스페이먼츠","52 tests"],img:null,vid:"media/takca.mp4",link:"https://takca.vercel.app"},
- {n:"SevMerge",t:"돈이 두 번 움직이는<br>구조를 나눠 잡았다",
+ {n:"SevMerge",st:"팀 프로젝트",t:"돈이 두 번 움직이는<br>구조를 나눠 잡았다",
   d:"7명이 4주간 만든 역제안 입찰 플랫폼. 카드 결제는 잔액만 올리고, 프로젝트 대금은 에스크로가 따로 관리하도록 계층을 분리했습니다. 동시 작업 중 순환 참조를 피하려 상태 변경은 JPQL로 직접 처리했습니다.",
   m:["팀 7명","Java 21","Spring Boot","커밋 115"],img:null,vid:"media/sevmerge.mp4",wide:true,link:"https://github.com/manabout-town/SevMerge"}
 ];
@@ -502,6 +568,114 @@ track.innerHTML=P.map((p,i)=>`
       setTimeout(()=>{animating=false;},700);
     },170);
   },{passive:true});
+})();
+
+/* ─────────── 터미널 스트림 ─────────── */
+(function(){
+  const out=document.getElementById("termout"), pct=document.getElementById("termpct"), sec=document.getElementById("term");
+  if(!out) return;
+
+  // 화면에 적는 값은 전부 이 페이지의 프로젝트 데이터에서 온다 — 지어낸 수치 없음.
+  const L=[];
+  const push=(c,t)=>L.push([c,t]);
+  push("cmd","cat shipped.json | jq -r '.[] | .name'");
+  P.forEach(p=>push("dim","  "+p.n));
+  push("dim","");
+  push("cmd","./ship.sh --all");
+  push("dim","2026 · 기획 · 구현 · 심사 · 배포까지 한 사람");
+  push("dim","");
+  P.forEach((p,i)=>{
+    const no=String(i+1).padStart(2,"0");
+    push("run",`[${no}/${String(P.length).padStart(2,"0")}] ${p.n} — ${p.t.replace(/<br>/g," ")}`);
+    const t=p.m.find(x=>/tests$/.test(x));
+    if(t) push("dim","      tests   "+t.replace(" tests","")+" passed");
+    push("dim","      tags    "+p.m.filter(x=>!/tests$/.test(x)&&x!=="LIVE"&&x!==p.st).join(" · "));
+    if(p.st==="운영 중") push("ok",`     ${p.n} 운영 중`);
+    else push("warn","     "+p.st);
+    if(p.link) push("url","      → "+p.link.replace(/^https?:\/\//,""));
+    push("dim","");
+  });
+  push("cmd","echo $?");
+  push("dim","0");
+  push("cmd","");
+
+  out.innerHTML=L.map(([c,t])=>`<div class="l-${c}">${t||"&nbsp;"}</div>`).join("");
+  const lines=[...out.children];
+  const CARET=document.createElement("span"); CARET.className="caret";
+  lines[lines.length-1].appendChild(CARET);
+
+  const LH=()=>parseFloat(getComputedStyle(out).lineHeight)||24;
+  let shown=-1;
+  function tick(){
+    const r=sec.getBoundingClientRect(), span=sec.offsetHeight-innerHeight;
+    const prog=Math.min(1,Math.max(0,-r.top/span));
+    const n=Math.round(prog*lines.length);
+    if(n!==shown){
+      shown=n;
+      lines.forEach((el,i)=>el.classList.toggle("on", i<n));
+      pct.textContent=Math.round(prog*100)+"%";
+      // 마지막 줄이 항상 창 안에 보이도록 위로 밀어 올린다.
+      const padTop=parseFloat(getComputedStyle(out).paddingTop)||0;
+      const vis=Math.floor((out.clientHeight-padTop*2)/LH());
+      out.scrollTop=n>vis ? padTop+(n-vis)*LH() : 0;
+    }
+    requestAnimationFrame(tick);
+  }
+  if(RM){ lines.forEach(el=>el.classList.add("on")); pct.textContent="100%"; }
+  else tick();
+})();
+
+/* ─────────── 커맨드 팔레트 · j/k 이동 ─────────── */
+(function(){
+  const pal=document.getElementById("pal"), inp=document.getElementById("palin"), list=document.getElementById("pallist");
+  const pin=document.getElementById("pin");
+  let sel=0, rows=[];
+
+  function jump(i){
+    const span=pin.offsetHeight-innerHeight;
+    scrollTo({top:pin.offsetTop+(i/(P.length-1))*span, behavior:"smooth"});
+  }
+  function render(q=""){
+    const s=q.trim().toLowerCase();
+    rows=P.map((p,i)=>({p,i})).filter(({p})=>!s||p.n.toLowerCase().includes(s)||p.t.toLowerCase().includes(s));
+    sel=0;
+    list.innerHTML=rows.map(({p,i},k)=>
+      `<button type="button" data-k="${k}" aria-selected="${k===0}"><s>${String(i+1).padStart(2,"0")}</s>`+
+      `<span>${p.n}</span><em>${p.st}</em></button>`).join("")
+      || `<button type="button" disabled style="color:#6E5A54">일치하는 프로젝트가 없습니다</button>`;
+  }
+  function open(){ pal.classList.add("on"); inp.value=""; render(); inp.focus(); }
+  function close(){ pal.classList.remove("on"); }
+  function choose(k){ const r=rows[k]; if(!r) return; close(); jump(r.i); }
+
+  inp.addEventListener("input",()=>render(inp.value));
+  list.addEventListener("click",e=>{ const b=e.target.closest("[data-k]"); if(b) choose(+b.dataset.k); });
+  pal.addEventListener("click",e=>{ if(e.target===pal) close(); });
+
+  document.addEventListener("keydown",e=>{
+    const typing=/^(INPUT|TEXTAREA)$/.test(e.target.tagName);
+    if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); pal.classList.contains("on")?close():open(); return; }
+    if(pal.classList.contains("on")){
+      if(e.key==="Escape"){ e.preventDefault(); close(); }
+      else if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+        e.preventDefault();
+        const btns=[...list.querySelectorAll("[data-k]")]; if(!btns.length) return;
+        sel=(sel+(e.key==="ArrowDown"?1:-1)+btns.length)%btns.length;
+        btns.forEach((b,i)=>b.setAttribute("aria-selected", i===sel));
+        btns[sel].scrollIntoView({block:"nearest"});
+      }
+      else if(e.key==="Enter"){ e.preventDefault(); choose(sel); }
+      return;
+    }
+    if(typing) return;
+    if(e.key==="j"||e.key==="k"){
+      const span=pin.offsetHeight-innerHeight;
+      const cur=Math.round(((scrollY-pin.offsetTop)/span)*(P.length-1));
+      const next=Math.min(P.length-1,Math.max(0,(isFinite(cur)?cur:0)+(e.key==="j"?1:-1)));
+      e.preventDefault(); jump(next);
+    }
+  });
+  render();
 })();
 
 </script>
