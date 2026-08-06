@@ -70,10 +70,20 @@
     51%{transform-origin:right}100%{transform:scaleX(.2);transform-origin:right}}
 
   /* ── RAIL ── */
-  .pin{position:relative;height:760vh}
-  .stick{position:sticky;top:0;height:100svh;overflow:hidden;display:flex;align-items:center}
-  .track{display:flex;gap:clamp(28px,5vw,96px);padding:0 12vw;will-change:transform}
-  .card{flex:0 0 min(76vw,560px);position:relative}
+  .pin{position:relative;height:820vh}
+  .stick{position:sticky;top:0;height:100svh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  #motes{position:absolute;inset:0;z-index:0;pointer-events:none}
+  .track{position:absolute;inset:0;transform-style:preserve-3d}
+  .card{position:absolute;left:50%;top:50%;width:min(78vw,500px);margin-left:calc(min(78vw,500px) / -2);
+    margin-top:-42vh;height:84vh;display:flex;flex-direction:column;justify-content:center;gap:0;
+    transform-origin:50% 50%;will-change:transform,opacity,filter;backface-visibility:hidden}
+  .reticle{position:absolute;left:50%;top:50%;width:min(92vw,600px);height:min(92vw,600px);
+    margin-left:calc(min(92vw,600px) / -2);margin-top:calc(min(92vw,600px) / -2);
+    z-index:1;pointer-events:none;opacity:0;transition:opacity .6s}
+  .reticle.on{animation:retin .8s cubic-bezier(.16,1,.3,1)}
+  @keyframes retin{from{filter:brightness(2.4)}to{filter:none}}
+  .reticle circle{fill:none;stroke:var(--gold);stroke-width:.6;opacity:.5}
+  .reticle line{stroke:var(--gold-hi);stroke-width:.6;opacity:.35}
   .card .idx{font-family:var(--f-mono);font-size:11px;letter-spacing:.2em;color:var(--steel);display:flex;gap:14px;align-items:center}
   .card .idx s{text-decoration:none;color:var(--gold)}
   .card h2{margin:12px 0 0;font-size:clamp(30px,4.4vw,64px);line-height:1.02;letter-spacing:-.04em;font-weight:750;text-wrap:balance}
@@ -96,7 +106,7 @@
   .card a.go:hover{color:var(--gold-hi)}
   .card:focus-within a.go:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
 
-  .bignum{position:absolute;right:-2vw;bottom:-6vh;font-family:var(--f-mono);font-size:clamp(90px,17vw,240px);line-height:1;
+  .bignum{position:absolute;right:-4vw;top:2vh;font-family:var(--f-mono);font-size:clamp(90px,17vw,240px);line-height:1;
     color:transparent;-webkit-text-stroke:1px #16202700;-webkit-text-stroke-color:#23131A;z-index:-1;font-variant-numeric:tabular-nums}
 
   .prog{position:fixed;left:0;bottom:0;height:2px;width:100%;z-index:40;background:#1A0F13}
@@ -114,9 +124,10 @@
     .sub,.metrics{opacity:1;animation:none}
     .scrollcue i{animation:none}
     .pin{height:auto}
-    .stick{position:static;height:auto;padding:8vh 0}
-    .track{flex-direction:column;transform:none!important;padding:0 clamp(18px,4vw,54px)}
-    .card{flex:none}
+    .stick{position:static;height:auto;padding:8vh 0;display:block}
+    .track{position:static;display:flex;flex-direction:column;gap:12vh;padding:0 clamp(18px,4vw,54px)}
+    .card{position:static;width:auto;height:auto;margin:0;transform:none!important;opacity:1!important;filter:none!important}
+    .reticle,#motes{display:none}
   }
   @media (max-width:640px){ body{cursor:auto} #cur,#ring{display:none} }
 
@@ -138,9 +149,7 @@
   @keyframes sweep{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
 
   /* 카드 3D */
-  .stick{perspective:1500px}
-  .track{transform-style:preserve-3d}
-  .card{transform-origin:center center;will-change:transform,opacity}
+  .stick{perspective:1250px}
   .card .shot img{will-change:transform}
   .card .idx s{display:inline-block;min-width:2.4ch}
 
@@ -245,6 +254,10 @@
   .hint{position:fixed;right:16px;bottom:14px;z-index:42;font-family:var(--f-mono);font-size:10.5px;
     letter-spacing:.14em;color:var(--steel-d);pointer-events:none}
   .hint b{color:var(--gold);font-weight:400}
+  @media (max-width:820px){ .pin{height:auto} .stick{position:static;height:auto;padding:6vh 0;display:block}
+    .track{position:static;display:flex;flex-direction:column;gap:10vh;padding:0 clamp(18px,4vw,54px)}
+    .card{position:static;width:auto;height:auto;margin:0;transform:none!important;opacity:1!important;filter:none!important}
+    .reticle,#motes{display:none} }
   @media (max-width:640px){ .hint{display:none} .term{height:auto} .termstick{position:static;height:auto}
     .termwin{height:auto} .termout{overflow:visible} }
   @media (prefers-reduced-motion:reduce){ .term{height:auto} .termstick{position:static;height:auto}
@@ -374,6 +387,13 @@
 
   <section class="pin" id="pin">
     <div class="stick">
+      <canvas id="motes"></canvas>
+      <svg class="reticle" id="reticle" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="86"></circle>
+        <circle cx="100" cy="100" r="94" stroke-dasharray="1 7"></circle>
+        <line x1="100" y1="2" x2="100" y2="14"></line><line x1="100" y1="186" x2="100" y2="198"></line>
+        <line x1="2" y1="100" x2="14" y2="100"></line><line x1="186" y1="100" x2="198" y2="100"></line>
+      </svg>
       <div class="track" id="track"></div>
     </div>
   </section>
@@ -494,60 +514,109 @@ track.innerHTML=P.map((p,i)=>`
     <button class="more" data-open="${i}">자세히 보기</button>
   </article>`).join("");
 
-/* ─────────── 스크롤 → 가로 이동 ─────────── */
+/* ─────────── 깊이 필드: 스크롤로 카드 사이를 통과한다 ─────────── */
 (function(){
-  if(RM) return;
-  const pin=document.getElementById("pin"),bar=document.getElementById("progbar"),label=document.getElementById("plabel");
+  const pin=document.getElementById("pin"), bar=document.getElementById("progbar"),
+        label=document.getElementById("plabel"), ret=document.getElementById("reticle"),
+        cv=document.getElementById("motes");
   const cards=[...track.children];
-  let cx=0,lastNear=-1,lastX=-1,settled=false;
-  function tick(){
-    const r=pin.getBoundingClientRect();
-    const span=pin.offsetHeight-innerHeight;
-    const prog=Math.min(1,Math.max(0,-r.top/span));
-    const max=track.scrollWidth-innerWidth+innerWidth*0.06;
-    const target=prog*max;
-    const dx=target-cx;
-    if(Math.abs(dx)<0.12){ cx=target; } else { cx+=dx*.09; }
-    const moved=Math.abs(cx-lastX)>0.05;
-    if(moved){ track.style.transform=`translate3d(${-cx}px,0,0)`; lastX=cx; }
-    else if(settled){ requestAnimationFrame(tick); return; }
-    settled=!moved;
-    bar.style.width=(prog*100).toFixed(2)+"%";
+  if(RM){ label && label.remove(); return; }
 
-    const mid=innerWidth/2; let near=null,nd=1e9;
-    cards.forEach((c,i)=>{
-      const b=c.getBoundingClientRect();
-      const o=(b.left+b.width/2-mid)/innerWidth;
-      const a=Math.abs(o);
-      if(a<nd){nd=a;near=i;}
-      c.style.transform=`translate3d(0,${(a*22).toFixed(1)}px,0) rotateY(${(-o*8).toFixed(2)}deg) scale(${(1-Math.min(.14,a*.17)).toFixed(3)})`;
-      c.style.opacity=(1-Math.min(.62,Math.max(0,a-.12)*.85)).toFixed(3);
-      const im=c.querySelector(".shot img")||c.querySelector(".shot video")||c.querySelector(".shot .ph");
-      if(im) im.style.transform=`translate3d(${(o*-26).toFixed(1)}px,0,0) scale(1.06)`;
-    });
-    if(near!==null && near!==lastNear){ lastNear=near; label.textContent=String(near+1).padStart(2,"0")+" / "+String(P.length).padStart(2,"0")+" · "+P[near].n; }
+  let t=0, lastNear=-1;
+  const ctx=cv.getContext("2d");
+  let W=0,H=0,DPR=1;
+  function size(){ DPR=Math.min(devicePixelRatio||1,1.5); W=cv.clientWidth; H=cv.clientHeight;
+    cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0); }
+  addEventListener("resize",size); size();
+
+  // 떠다니는 불티 — 카드가 바뀔 때 그쪽으로 흘러간다.
+  const M=[];
+  for(let i=0;i<70;i++) M.push({x:Math.random(),y:Math.random(),
+    vx:(Math.random()-.5)*.00022, vy:-0.00012-Math.random()*0.00028,
+    r:.5+Math.random()*1.5, a:.12+Math.random()*.42, p:Math.random()*6.28});
+  function burst(cx,cy){
+    for(let i=0;i<26;i++){ const m=M[(Math.random()*M.length)|0];
+      m.x=cx+(Math.random()-.5)*.06; m.y=cy+(Math.random()-.5)*.06;
+      m.vx=(Math.random()-.5)*.0016; m.vy=-0.0004-Math.random()*0.0012; m.a=.55+Math.random()*.45; }
+  }
+
+  // 카드 중심의 화면 좌표 — 별자리 선을 잇는 데 쓴다.
+  const pos=[];
+  function place(){
+    const cw=cards[0].offsetWidth||420;
+    for(let i=0;i<cards.length;i++){
+      const d=i-t, ad=Math.abs(d);
+      const x=Math.sin(d*0.86)*Math.min(innerWidth*0.52,720);
+      const y=(1-Math.cos(d*0.86))*Math.min(innerHeight*0.14,110)*(d<0?-1:1);
+      const z=-ad*560 - (d>0?0:70);
+      const sc=1-Math.min(.4,ad*.11);
+      const op=Math.max(0,1-Math.pow(ad,1.55)*0.95);
+      const bl=Math.min(9,Math.pow(ad,1.5)*5.6);
+      const c=cards[i];
+      c.style.transform=`translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,${z.toFixed(0)}px) rotateY(${(-d*11).toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+      c.style.opacity=op.toFixed(3);
+      c.style.filter=bl>0.4?`blur(${bl.toFixed(1)}px)`:"none";
+      c.style.zIndex=String(100-Math.round(ad*10));
+      c.style.pointerEvents=ad<0.5?"auto":"none";
+      pos[i]={x:innerWidth/2+x*(1-ad*0.06), y:innerHeight/2+y, a:op, rx:x, ry:y};
+      const v=c.querySelector("video");
+      if(v){ if(ad<0.85){ if(v.paused) v.play().catch(()=>{}); } else if(!v.paused) v.pause(); }
+    }
+  }
+
+  function aim(){
+    const n=Math.round(t), p=pos[n]; if(!p) return;
+    const k=1-Math.min(1,Math.abs(n-t)*1.6);
+    ret.style.transform=`translate(${p.rx.toFixed(1)}px,${p.ry.toFixed(1)}px) scale(${(0.94+k*0.06).toFixed(3)})`;
+    ret.style.opacity=(0.34*k).toFixed(3);
+  }
+
+  function paint(){
+    ctx.clearRect(0,0,W,H);
+    // 별자리 — 이웃한 카드끼리 가는 실선으로 잇는다.
+    ctx.lineWidth=.7;
+    for(let i=0;i<pos.length-1;i++){
+      const a=pos[i], b=pos[i+1]; if(!a||!b) continue;
+      const al=Math.min(a.a,b.a)*.34; if(al<0.02) continue;
+      ctx.strokeStyle=`rgba(198,162,83,${al.toFixed(3)})`;
+      ctx.beginPath(); ctx.moveTo(a.x,a.y);
+      ctx.quadraticCurveTo((a.x+b.x)/2,(a.y+b.y)/2+46,b.x,b.y); ctx.stroke();
+    }
+    for(const p of pos){ if(!p||p.a<0.05) continue;
+      ctx.fillStyle=`rgba(240,223,174,${(p.a*.5).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(p.x,p.y,1.7,0,6.283); ctx.fill(); }
+    // 불티
+    for(const m of M){
+      m.x+=m.vx; m.y+=m.vy; m.p+=0.02;
+      m.vx*=0.995; m.vy*=0.995; m.vy-=0.0000006;
+      if(m.y<-0.05){ m.y=1.05; m.x=Math.random(); m.a=.12+Math.random()*.42; }
+      if(m.x<-0.05) m.x=1.05; if(m.x>1.05) m.x=-0.05;
+      const tw=0.65+0.35*Math.sin(m.p);
+      ctx.fillStyle=`rgba(255,214,140,${(m.a*tw*0.75).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(m.x*W,m.y*H,m.r,0,6.283); ctx.fill();
+    }
+  }
+
+  function tick(){
+    const r=pin.getBoundingClientRect(), span=pin.offsetHeight-innerHeight;
+    const prog=Math.min(1,Math.max(0,-r.top/span));
+    const target=prog*(cards.length-1);
+    t+=(target-t)*0.1;
+    place(); aim(); paint();
+    bar.style.width=(prog*100).toFixed(2)+"%";
+    const near=Math.round(t);
+    if(near!==lastNear){
+      if(lastNear>=0 && pos[lastNear]) burst(pos[lastNear].x/W, pos[lastNear].y/H);
+      lastNear=near;
+      label.textContent=String(near+1).padStart(2,"0")+" / "+String(P.length).padStart(2,"0")+" · "+P[near].n;
+      ret.classList.remove("on"); void ret.offsetWidth; ret.classList.add("on");
+    }
     label.classList.toggle("on", prog>0.01 && prog<0.995);
     requestAnimationFrame(tick);
   }
   tick();
 })();
 
-/* ─────────── 마그네틱 링크 ─────────── */
-(function(){
-  if(RM) return;
-  const targets=()=>[...document.querySelectorAll("a.go, .outro .row a")];
-  let els=targets();
-  addEventListener("pointermove",e=>{
-    els.forEach(el=>{
-      const b=el.getBoundingClientRect();
-      const dx=e.clientX-(b.left+b.width/2), dy=e.clientY-(b.top+b.height/2);
-      const d=Math.hypot(dx,dy);
-      if(d<110){ el.style.transform=`translate(${dx*.22}px,${dy*.22}px)`; }
-      else if(el.style.transform){ el.style.transform=""; }
-    });
-  });
-  addEventListener("resize",()=>{els=targets();});
-})();
 /* ─────────── 케이스 상세 (FLIP) ─────────── */
 (function(){
   const scrim=document.getElementById("scrim"), sheet=document.getElementById("sheet");
