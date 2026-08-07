@@ -214,7 +214,7 @@ function makeBodyMaterial() {
         vec3 N = normalize(vNormalV);
         /* 구면 UV를 쓰면 지오메트리마다 이음새 위치와 상하 방향이 달라진다.
            대신 시선 공간 법선으로 찍어 영상 면이 항상 카메라를 정면으로 보게 했다. */
-        vec2 t = vec2(-N.x, -N.y) / uSpan * 0.5 + 0.5;
+        vec2 t = N.xy / uSpan * 0.5 + 0.5;
         vec3 base = uFill;
         if (uHasVideo > 0.5 && N.z > 0.0) {
           vec2 e = smoothstep(vec2(0.0), vec2(0.03), t) * (1.0 - smoothstep(vec2(0.97), vec2(1.0), t));
