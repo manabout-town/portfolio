@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>박효균 — 만든 게 아니라 내보냈다</title>
-<meta name="description" content="기획·구현·심사·배포까지 혼자 끝내는 제품 엔지니어 박효균. 2026년에 내보낸 아홉 개의 서비스.">
-<meta name="theme-color" content="#090507">
+<title>박효균 — 아홉 번의 발사 기록</title>
+<meta name="description" content="기획·구현·심사·배포까지 혼자 끝내는 제품 엔지니어 박효균. 2026년에 궤도에 올린 아홉 개의 서비스.">
+<meta name="theme-color" content="#06070F">
 <meta property="og:type" content="website">
-<meta property="og:title" content="박효균 — 만든 게 아니라 내보냈다">
-<meta property="og:description" content="기획·구현·심사·배포까지 혼자. 2026년에 내보낸 아홉 개의 서비스.">
+<meta property="og:title" content="박효균 — 아홉 번의 발사 기록">
+<meta property="og:description" content="기획·구현·심사·배포까지 혼자. 2026년에 궤도에 올린 아홉 개의 서비스.">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23090507'/%3E%3Cpath d='M8 22 L16 8 L24 22' stroke='%23C6A253' stroke-width='2.6' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2306070F'/%3E%3Cpath d='M8 22 L16 8 L24 22' stroke='%23D8CFA6' stroke-width='2.6' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E">
 </head>
 <body>
 <style>
   :root{
-    --ink:#08050700; --ink:#090507; --ink2:#120A0D; --steel:#A38E86; --steel-d:#4A3238;
-    --wine:#7B1B2E; --wine-d:#3A0D18; --gold:#C6A253; --gold-hi:#F0DFAE; --white:#F4EFE7;
+    --ink:#06070F; --ink2:#0C0E1C; --steel:#8C93B0; --steel-d:#3A4060;
+    --wine:#8C1E52; --wine-d:#2C0E33; --gold:#D8CFA6; --gold-hi:#F3EFDD; --white:#EEF1F8;
     --f-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
     --f-sans:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   }
@@ -25,17 +25,17 @@
   html{scroll-behavior:smooth}
   body{word-break:keep-all;margin:0;background:var(--ink);color:var(--white);font-family:var(--f-sans);overflow-x:hidden;cursor:none}
   a{color:inherit}
-  ::selection{background:var(--gold);color:#000}
+  ::selection{background:var(--gold);color:#06070F}
 
   #bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
   .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.10;mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
-  .vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 80% at 50% 32%,transparent 38%,rgba(0,0,0,.78) 100%)}
+  .vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 80% at 50% 32%,transparent 38%,rgba(2,3,9,.82) 100%)}
 
   /* cursor */
   #cur{position:fixed;z-index:60;top:0;left:0;width:10px;height:10px;border-radius:50%;background:var(--gold);
     pointer-events:none;mix-blend-mode:screen;transform:translate(-50%,-50%)}
-  #ring{position:fixed;z-index:59;top:0;left:0;width:38px;height:38px;border:1px solid rgba(240,223,174,.42);border-radius:50%;
+  #ring{position:fixed;z-index:59;top:0;left:0;width:38px;height:38px;border:1px solid rgba(243,239,221,.40);border-radius:50%;
     pointer-events:none;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s}
   body.hot #ring{width:72px;height:72px;border-color:var(--gold)}
 
@@ -54,10 +54,10 @@
   .kine .ln:nth-child(2) i{animation-delay:.09s}
   .kine .ln:nth-child(3) i{animation-delay:.18s}
   @keyframes rise{to{transform:none}}
-  .kine em{font-style:normal;color:transparent;-webkit-text-stroke:1.6px #7B1B2E}
-  .kine b{font-weight:800;background:linear-gradient(96deg,#9A7A2E 4%,var(--gold) 34%,var(--gold-hi) 68%,#FFF8E6 98%);
+  .kine em{font-style:normal;color:transparent;-webkit-text-stroke:1.6px #8C1E52}
+  .kine b{font-weight:800;background:linear-gradient(96deg,#7C8099 4%,var(--gold) 34%,var(--gold-hi) 68%,#FBF9F0 98%);
     -webkit-background-clip:text;background-clip:text;color:transparent}
-  .sub{max-width:44ch;color:#C9B7B0;font-size:clamp(14px,1.35vw,18px);line-height:1.65;opacity:0;animation:fade .9s .55s forwards}
+  .sub{max-width:44ch;color:#B9C0D6;font-size:clamp(14px,1.35vw,18px);line-height:1.65;opacity:0;animation:fade .9s .55s forwards}
   @keyframes fade{to{opacity:1}}
   .metrics{display:flex;gap:clamp(20px,4vw,64px);flex-wrap:wrap;font-family:var(--f-mono);opacity:0;animation:fade .9s .75s forwards}
   .metrics div{display:flex;flex-direction:column;gap:3px}
@@ -87,19 +87,19 @@
   .card .idx{font-family:var(--f-mono);font-size:11px;letter-spacing:.2em;color:var(--steel);display:flex;gap:14px;align-items:center}
   .card .idx s{text-decoration:none;color:var(--gold)}
   .card h2{margin:12px 0 0;font-size:clamp(26px,3.5vw,46px);line-height:1.02;letter-spacing:-.04em;font-weight:750;text-wrap:balance}
-  .card p{margin:16px 0 0;max-width:46ch;color:#B6A49E;font-size:clamp(13.5px,1.15vw,16px);line-height:1.7}
-  .shot{margin-top:26px;position:relative;border:1px solid #2A171D;border-radius:2px;overflow:hidden;background:var(--ink2);
+  .card p{margin:16px 0 0;max-width:46ch;color:#A6AEC6;font-size:clamp(13.5px,1.15vw,16px);line-height:1.7}
+  .shot{margin-top:26px;position:relative;border:1px solid #1B2038;border-radius:2px;overflow:hidden;background:var(--ink2);
     aspect-ratio:16/10;display:flex;align-items:center;justify-content:center}
   .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;filter:saturate(.92) contrast(1.04)}
-  .shot.vid{aspect-ratio:16/10;background:radial-gradient(70% 90% at 50% 40%,#2A0E17,#0B0507 78%);display:flex;align-items:center;justify-content:center}
+  .shot.vid{aspect-ratio:16/10;background:radial-gradient(70% 90% at 50% 40%,#251340,#080A16 78%);display:flex;align-items:center;justify-content:center}
   .shot.vid.wide video{height:auto;width:100%}
-  .shot.vid video{height:100%;width:auto;max-width:none;display:block;box-shadow:0 0 0 1px rgba(240,223,174,.18),0 24px 60px rgba(0,0,0,.55);filter:saturate(.95) contrast(1.03)}
+  .shot.vid video{height:100%;width:auto;max-width:none;display:block;box-shadow:0 0 0 1px rgba(243,239,221,.16),0 24px 60px rgba(2,3,9,.6);filter:saturate(.95) contrast(1.03)}
   .shot.vid::before{content:"DEMO";position:absolute;top:10px;left:10px;z-index:2;font-family:var(--f-mono);font-size:9.5px;
-    letter-spacing:.2em;color:var(--gold-hi);border:1px solid rgba(240,223,174,.35);padding:2px 7px;border-radius:2px;background:rgba(9,5,7,.55)}
+    letter-spacing:.2em;color:var(--gold-hi);border:1px solid rgba(243,239,221,.35);padding:2px 7px;border-radius:2px;background:rgba(6,7,15,.6)}
   .shot .ph{font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;color:var(--steel-d);text-align:center;line-height:2;padding:20px}
-  .shot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(9,5,7,.88));pointer-events:none}
+  .shot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(6,7,15,.9));pointer-events:none}
   .meta{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em}
-  .meta span{border:1px solid #332027;color:var(--steel);padding:4px 9px;border-radius:2px}
+  .meta span{border:1px solid #2A3050;color:var(--steel);padding:4px 9px;border-radius:2px}
   .meta span.on{border-color:var(--gold);color:var(--gold-hi)}
   .card a.go{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-family:var(--f-mono);font-size:11.5px;
     letter-spacing:.16em;text-transform:uppercase;text-decoration:none;color:var(--white);border-bottom:1px solid var(--gold);padding-bottom:4px}
@@ -107,9 +107,9 @@
   .card:focus-within a.go:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
 
   .bignum{position:absolute;right:-4vw;top:2vh;font-family:var(--f-mono);font-size:clamp(90px,17vw,240px);line-height:1;
-    color:transparent;-webkit-text-stroke:1px #16202700;-webkit-text-stroke-color:#23131A;z-index:-1;font-variant-numeric:tabular-nums}
+    color:transparent;-webkit-text-stroke:1px #16202700;-webkit-text-stroke-color:#171B30;z-index:-1;font-variant-numeric:tabular-nums}
 
-  .prog{position:fixed;left:0;bottom:0;height:2px;width:100%;z-index:40;background:#1A0F13}
+  .prog{position:fixed;left:0;bottom:0;height:2px;width:100%;z-index:40;background:#131730}
   .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--wine),var(--gold) 70%,var(--gold-hi))}
 
   /* ── OUTRO ── */
@@ -132,7 +132,7 @@
   @media (max-width:640px){ body{cursor:auto} #cur,#ring{display:none} }
 
   /* 인트로 커튼 */
-  #intro{position:fixed;inset:0;z-index:80;background:#050203;display:grid;place-items:center;pointer-events:none;
+  #intro{position:fixed;inset:0;z-index:80;background:#04050C;display:grid;place-items:center;pointer-events:none;
     animation:curtain .75s 1.35s cubic-bezier(.7,0,.2,1) forwards}
   #intro i{display:block;height:1px;width:0;background:linear-gradient(90deg,transparent,var(--gold-hi),transparent);
     animation:draw 1.15s .15s cubic-bezier(.16,1,.3,1) forwards}
@@ -150,6 +150,20 @@
 
   /* 카드 3D */
   .stick{perspective:1250px}
+
+  /* 3D 궤도가 살아있을 때만 붙는다. 실패하면 위의 2D 깊이 필드가 그대로 남는다. */
+  #cosmos{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+  .cosmos #motes,.cosmos .reticle{display:none}
+  .cosmos .track{transform-style:flat}
+  .cosmos .card{left:0;top:0;margin-left:0;margin-top:0;width:min(42vw,520px);z-index:2;
+    will-change:transform,opacity;pointer-events:none;transition:none}
+  .cosmos .card.focus{pointer-events:auto}
+  /* 초점 밖 카드의 글자는 지운다. 궤도 위에서 겹친 텍스트가 가장 큰 시각 소음이다. */
+  .cosmos .card>*{opacity:0;transition:opacity .25s}
+  .cosmos .card.focus>*{opacity:1;transition:opacity .4s .12s}
+  /* 천체 표면이 이미 데모를 재생하므로 카드 안 영상은 중복이다. */
+  .cosmos .card .shot{display:none}
+  @media (max-width:1099px){ .cosmos .card{width:min(78vw,460px)} }
   .card .shot img{will-change:transform}
   .card .idx s{display:inline-block;min-width:2.4ch}
 
@@ -165,24 +179,24 @@
   .card .more::after{content:"";width:26px;height:1px;background:var(--gold);transition:width .25s}
   .card:hover .more::after{width:44px}
 
-  #scrim{position:fixed;inset:0;z-index:70;background:rgba(5,2,3,.72);backdrop-filter:blur(7px);opacity:0;
+  #scrim{position:fixed;inset:0;z-index:70;background:rgba(4,5,12,.74);backdrop-filter:blur(7px);opacity:0;
     pointer-events:none;transition:opacity .32s}
   #scrim.on{opacity:1;pointer-events:auto}
-  #sheet{position:fixed;z-index:71;background:linear-gradient(180deg,#140A0E,#0B0507);border:1px solid #33202A;
+  #sheet{position:fixed;z-index:71;background:linear-gradient(180deg,#101426,#06070F);border:1px solid #2A3050;
     border-radius:3px;overflow:hidden;pointer-events:none;opacity:0}
   #sheet.on{pointer-events:auto;opacity:1}
   #sheet .inner{height:100%;overflow-y:auto;padding:clamp(24px,3.4vw,52px)}
   #sheet .inner::-webkit-scrollbar{width:8px}
-  #sheet .inner::-webkit-scrollbar-thumb{background:#33202A}
-  #sheet .close{position:absolute;top:14px;right:16px;z-index:2;background:none;border:1px solid #3B2530;color:var(--gold-hi);
+  #sheet .inner::-webkit-scrollbar-thumb{background:#2A3050}
+  #sheet .close{position:absolute;top:14px;right:16px;z-index:2;background:none;border:1px solid #333A5C;color:var(--gold-hi);
     font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;padding:7px 13px;border-radius:2px;cursor:pointer}
-  #sheet .close:hover{border-color:var(--gold);background:rgba(198,162,83,.09)}
+  #sheet .close:hover{border-color:var(--gold);background:rgba(216,207,166,.10)}
   #sheet h3{margin:10px 0 0;font-size:clamp(24px,3.2vw,46px);line-height:1.06;letter-spacing:-.04em;font-weight:760;text-wrap:balance}
   #sheet .eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase}
   #sheet .grid{margin-top:clamp(20px,2.6vw,36px);display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
     gap:clamp(22px,3vw,46px);align-items:start}
   @media (max-width:900px){ #sheet .grid{grid-template-columns:1fr} }
-  #sheet .media{border:1px solid #2A171D;border-radius:2px;overflow:hidden;background:radial-gradient(70% 90% at 50% 40%,#2A0E17,#0B0507 78%);
+  #sheet .media{border:1px solid #1B2038;border-radius:2px;overflow:hidden;background:radial-gradient(70% 90% at 50% 40%,#251340,#080A16 78%);
     display:flex;align-items:center;justify-content:center;aspect-ratio:3/4}
   #sheet .media.wide{aspect-ratio:16/10}
   #sheet .media.wide video{width:100%;height:auto}
@@ -190,15 +204,15 @@
   #sheet .media .none{font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;color:var(--steel-d);text-align:center;line-height:2;padding:24px}
   #sheet .blocks{display:flex;flex-direction:column;gap:clamp(18px,2.2vw,30px)}
   #sheet .blocks h4{margin:0 0 7px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
-  #sheet .blocks p{margin:0;max-width:58ch;color:#C9B7B0;font-size:15px;line-height:1.78}
-  #sheet .blocks .how{border-top:1px solid #2A171D;padding-top:clamp(16px,2vw,24px)}
+  #sheet .blocks p{margin:0;max-width:58ch;color:#B9C0D6;font-size:15px;line-height:1.78}
+  #sheet .blocks .how{border-top:1px solid #1B2038;padding-top:clamp(16px,2vw,24px)}
   #sheet .blocks strong{font-weight:600;color:var(--gold-hi)}
   #sheet .blocks .hstack{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.02em;color:var(--gold-hi);margin-bottom:9px}
   #sheet .foot{margin-top:clamp(22px,2.6vw,38px);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  #sheet .foot .meta span{border:1px solid #332027;color:var(--steel);padding:4px 9px;border-radius:2px;font-family:var(--f-mono);font-size:10.5px}
+  #sheet .foot .meta span{border:1px solid #2A3050;color:var(--steel);padding:4px 9px;border-radius:2px;font-family:var(--f-mono);font-size:10.5px}
   #sheet .foot a{margin-left:auto;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
     text-decoration:none;color:var(--white);border:1px solid var(--gold);padding:9px 18px;border-radius:2px}
-  #sheet .foot a:hover{background:var(--gold);color:#100609}
+  #sheet .foot a:hover{background:var(--gold);color:#0B0E1C}
   @media (prefers-reduced-motion:reduce){ #sheet{transition:none!important} }
 
   /* 커서 트레일 */
@@ -210,14 +224,14 @@
   .termstick{position:sticky;top:0;height:100svh;display:flex;align-items:center;justify-content:center;
     padding:clamp(18px,4vw,54px)}
   .termwin{width:min(1000px,100%);height:min(74vh,640px);display:flex;flex-direction:column;
-    background:linear-gradient(180deg,rgba(20,10,14,.94),rgba(9,5,7,.96));border:1px solid #33202A;border-radius:5px;
-    box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 1px rgba(240,223,174,.06)}
-  .termbar{display:flex;align-items:center;gap:9px;padding:11px 14px;border-bottom:1px solid #2A171D;
+    background:linear-gradient(180deg,rgba(16,20,38,.94),rgba(6,7,15,.96));border:1px solid #2A3050;border-radius:5px;
+    box-shadow:0 40px 120px rgba(2,3,9,.62),0 0 0 1px rgba(243,239,221,.07)}
+  .termbar{display:flex;align-items:center;gap:9px;padding:11px 14px;border-bottom:1px solid #1B2038;
     font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;color:var(--steel)}
-  .termbar i{width:9px;height:9px;border-radius:50%;background:#3B2530;display:block}
-  .termbar i:first-child{background:#7B1B2E}
-  .termbar i:nth-child(2){background:#8A6A2A}
-  .termbar i:nth-child(3){background:#2F5D45}
+  .termbar i{width:9px;height:9px;border-radius:50%;background:#333A5C;display:block}
+  .termbar i:first-child{background:#8C1E52}
+  .termbar i:nth-child(2){background:#8A8262}
+  .termbar i:nth-child(3){background:#2F5A6B}
   .termbar span{margin-left:8px}
   .termbar b{margin-left:auto;font-weight:400;color:var(--gold);font-variant-numeric:tabular-nums}
   .termout{margin:0;flex:1;overflow:hidden;padding:16px clamp(14px,2vw,26px);font-family:var(--f-mono);
@@ -226,11 +240,11 @@
   .termout div.on{opacity:1;transform:none;transition:opacity .18s,transform .18s}
   .l-cmd{color:var(--white)}
   .l-cmd::before{content:"$ ";color:var(--gold)}
-  .l-dim{color:#8A7A74}
+  .l-dim{color:#7E86A4}
   .l-ok{color:#7FCBA4}
   .l-ok::before{content:"✓ ";color:#7FCBA4}
   .l-run::before{content:"› ";color:var(--gold)}
-  .l-run{color:#C9B7B0}
+  .l-run{color:#B9C0D6}
   .l-warn{color:var(--gold-hi)}
   .l-warn::before{content:"! ";color:var(--gold)}
   .l-url{color:var(--gold-hi)}
@@ -239,17 +253,17 @@
 
   /* ── 커맨드 팔레트 ── */
   #pal{position:fixed;inset:0;z-index:90;display:none;align-items:flex-start;justify-content:center;
-    padding-top:14vh;background:rgba(5,2,3,.66);backdrop-filter:blur(6px)}
+    padding-top:14vh;background:rgba(4,5,12,.68);backdrop-filter:blur(6px)}
   #pal.on{display:flex}
-  #palbox{width:min(560px,92vw);background:#120A0E;border:1px solid #3B2530;border-radius:4px;overflow:hidden;
-    box-shadow:0 40px 120px rgba(0,0,0,.7)}
-  #palin{width:100%;background:none;border:0;border-bottom:1px solid #2A171D;color:var(--white);
+  #palbox{width:min(560px,92vw);background:#0C0E1C;border:1px solid #333A5C;border-radius:4px;overflow:hidden;
+    box-shadow:0 40px 120px rgba(2,3,9,.72)}
+  #palin{width:100%;background:none;border:0;border-bottom:1px solid #1B2038;color:var(--white);
     font-family:var(--f-mono);font-size:14px;padding:15px 18px;outline:none}
-  #palin::placeholder{color:#6E5A54}
+  #palin::placeholder{color:#5E6688}
   #pallist{max-height:46vh;overflow-y:auto}
   #pallist button{display:flex;width:100%;gap:12px;align-items:center;background:none;border:0;cursor:pointer;
-    padding:11px 18px;font:inherit;color:#C9B7B0;text-align:left;font-family:var(--f-mono);font-size:13px}
-  #pallist button[aria-selected=true]{background:rgba(198,162,83,.12);color:var(--white)}
+    padding:11px 18px;font:inherit;color:#B9C0D6;text-align:left;font-family:var(--f-mono);font-size:13px}
+  #pallist button[aria-selected=true]{background:rgba(216,207,166,.13);color:var(--white)}
   #pallist button s{text-decoration:none;color:var(--gold);min-width:2.2ch}
   #pallist button em{margin-left:auto;font-style:normal;font-size:10.5px;letter-spacing:.12em;color:var(--steel)}
   .hint{position:fixed;right:16px;bottom:14px;z-index:42;font-family:var(--f-mono);font-size:10.5px;
@@ -270,23 +284,23 @@
   .about .tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
   .about h2{margin:14px 0 0;font-size:clamp(26px,3.6vw,50px);line-height:1.18;letter-spacing:-.035em;font-weight:740;
     max-width:20ch;text-wrap:balance}
-  .about h2 em{font-style:normal;background:linear-gradient(96deg,#9A7A2E,var(--gold) 40%,var(--gold-hi) 85%);
+  .about h2 em{font-style:normal;background:linear-gradient(96deg,#7C8099,var(--gold) 40%,var(--gold-hi) 85%);
     -webkit-background-clip:text;background-clip:text;color:transparent}
-  .about .lead{margin:clamp(18px,2.2vw,28px) 0 0;max-width:62ch;color:#C9B7B0;font-size:clamp(15px,1.25vw,17.5px);line-height:1.85}
+  .about .lead{margin:clamp(18px,2.2vw,28px) 0 0;max-width:62ch;color:#B9C0D6;font-size:clamp(15px,1.25vw,17.5px);line-height:1.85}
   .cols{margin-top:clamp(38px,5vw,72px);display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));
-    gap:clamp(24px,3vw,52px);border-top:1px solid #2A171D;padding-top:clamp(28px,3.4vw,44px)}
+    gap:clamp(24px,3vw,52px);border-top:1px solid #1B2038;padding-top:clamp(28px,3.4vw,44px)}
   .cols h3{margin:0 0 10px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
-  .cols p{margin:0;color:#B6A49E;font-size:14.5px;line-height:1.8}
+  .cols p{margin:0;color:#A6AEC6;font-size:14.5px;line-height:1.8}
   .cols ul{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
-  .cols li{color:#C9B7B0;font-size:14px;line-height:1.6;padding-left:15px;position:relative}
+  .cols li{color:#B9C0D6;font-size:14px;line-height:1.6;padding-left:15px;position:relative}
   .cols li::before{content:"—";position:absolute;left:0;color:var(--gold);opacity:.65}
   .figs{margin-top:clamp(34px,4.4vw,60px);display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-    gap:clamp(16px,2vw,30px);border-top:1px solid #2A171D;padding-top:clamp(24px,3vw,36px)}
+    gap:clamp(16px,2vw,30px);border-top:1px solid #1B2038;padding-top:clamp(24px,3vw,36px)}
   .figs div b{display:block;font-family:var(--f-mono);font-size:clamp(24px,3vw,38px);font-weight:600;letter-spacing:-.03em;
     font-variant-numeric:tabular-nums;line-height:1;color:var(--white)}
   .figs div span{display:block;margin-top:7px;font-family:var(--f-mono);font-size:10px;letter-spacing:.18em;
     text-transform:uppercase;color:var(--steel)}
-  .figs div i{display:block;margin-top:5px;font-style:normal;font-size:12.5px;color:#8A7A74;line-height:1.5}
+  .figs div i{display:block;margin-top:5px;font-style:normal;font-size:12.5px;color:#7E86A4;line-height:1.5}
 
   /* 히어로 타이핑 */
   .hcmd{margin:0 0 clamp(10px,1.6vh,20px);font-family:var(--f-mono);font-size:clamp(12px,1.15vw,15px);
@@ -299,18 +313,18 @@
   .year{position:relative;padding:clamp(80px,13vh,150px) clamp(18px,4vw,54px);max-width:1180px;margin:0 auto}
   .year .tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
   .year h2{margin:14px 0 0;font-size:clamp(24px,3.2vw,44px);line-height:1.2;letter-spacing:-.035em;font-weight:740;max-width:22ch;text-wrap:balance}
-  .year .lead{margin:16px 0 0;max-width:58ch;color:#B6A49E;font-size:clamp(14px,1.15vw,16px);line-height:1.8}
-  .gantt{margin-top:clamp(34px,4.4vw,58px);border-top:1px solid #2A171D}
+  .year .lead{margin:16px 0 0;max-width:58ch;color:#A6AEC6;font-size:clamp(14px,1.15vw,16px);line-height:1.8}
+  .gantt{margin-top:clamp(34px,4.4vw,58px);border-top:1px solid #1B2038}
   .gmonths{display:grid;grid-template-columns:minmax(96px,150px) repeat(4,1fr);gap:0;
-    font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;color:var(--steel);padding:10px 0;border-bottom:1px solid #2A171D}
+    font-family:var(--f-mono);font-size:10px;letter-spacing:.16em;color:var(--steel);padding:10px 0;border-bottom:1px solid #1B2038}
   .gmonths span+span{text-align:center}
   .grow{display:grid;grid-template-columns:minmax(96px,150px) 1fr;gap:0;align-items:center;
-    padding:9px 0;border-bottom:1px solid rgba(42,23,29,.6)}
-  .grow b{font-weight:500;font-size:13.5px;letter-spacing:-.01em;color:#C9B7B0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:12px}
+    padding:9px 0;border-bottom:1px solid rgba(27,32,56,.6)}
+  .grow b{font-weight:500;font-size:13.5px;letter-spacing:-.01em;color:#B9C0D6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:12px}
   .gtrack{position:relative;height:22px}
   .gtrack i{position:absolute;top:6px;height:10px;border-radius:1px;display:block;
-    background:linear-gradient(90deg,rgba(123,27,46,.9),var(--gold));opacity:.92}
-  .gtrack i.team{background:linear-gradient(90deg,rgba(58,13,24,.9),rgba(154,122,46,.85))}
+    background:linear-gradient(90deg,rgba(140,30,82,.92),var(--gold));opacity:.92}
+  .gtrack i.team{background:linear-gradient(90deg,rgba(44,14,51,.92),rgba(124,128,153,.85))}
   .gtrack em{position:absolute;top:2px;font-style:normal;font-family:var(--f-mono);font-size:10.5px;
     color:var(--steel);white-space:nowrap;font-variant-numeric:tabular-nums}
   .gnote{margin-top:16px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;color:var(--steel-d)}
@@ -335,7 +349,7 @@
   <section class="hero">
     <div class="top">
       <span><b>박효균</b> — Product Engineer</span>
-      <span>SEOUL / BUSAN · 2026</span>
+      <span>Ground control · SEOUL / BUSAN · 2026</span>
     </div>
     <div class="heromid">
       <p class="hcmd" id="hcmd"></p>
@@ -344,28 +358,28 @@
         <span class="ln"><i><em>만든 게</em> 아니라</i></span>
         <span class="ln"><i><b>내보냈다</b></i></span>
       </h1>
-      <p class="sub">기획·구현·심사·배포까지 혼자 끝냅니다. 데모가 아니라 사용자가 결제하고, 정산되고, 심의를 통과한 것들만 올렸습니다.</p>
+      <p class="sub">기획·구현·심사·배포까지 혼자 끝냅니다. 시험 비행이 아니라 사용자가 결제하고, 정산되고, 심의를 통과한 것만 궤도에 올렸습니다.</p>
       <div class="metrics">
-        <div><b>9</b><span>Products</span></div>
-        <div><b>3</b><span>Live now</span></div>
-        <div><b>763</b><span>Tests green</span></div>
-        <div><b>1</b><span>Team project</span></div>
+        <div><b>9</b><span>Payloads</span></div>
+        <div><b>3</b><span>In orbit</span></div>
+        <div><b>763</b><span>Systems green</span></div>
+        <div><b>1</b><span>Crewed mission</span></div>
       </div>
     </div>
-    <div class="scrollcue"><i></i>Scroll to open the line</div>
+    <div class="scrollcue"><i></i>Descend</div>
   </section>
 
   <section class="about" id="about">
     <p class="tag">About</p>
-    <h2>혼자서 <em>기획부터 심사·배포까지</em> 끝내는 것이 제 일하는 방식입니다.</h2>
+    <h2>한 사람이 <em>기획부터 심사·배포까지</em> 끝내는 것이 제 항해 방식입니다.</h2>
     <p class="lead">회사가 나눠 맡는 일을 한 사람이 이어서 합니다. 무엇을 만들지 정하고, 화면과 서버를 짜고,
-      약관과 심사 서류를 쓰고, 배포한 뒤 운영까지 봅니다. 그래서 "동작하는 데모"가 아니라
+      약관과 심사 서류를 쓰고, 쏘아 올린 뒤 운영까지 봅니다. 그래서 "동작하는 데모"가 아니라
       실제로 결제가 일어나고, 심의를 통과하고, 사용자가 매일 여는 서비스를 내놓을 수 있습니다.
       2026년에 그렇게 아홉 개를 만들었고, 그중 셋은 지금 운영 중입니다.</p>
 
     <div class="cols">
       <div>
-        <h3>혼자 끝내는 범위</h3>
+        <h3>단독 항해 장비</h3>
         <ul>
           <li>문제 정의와 화면 설계</li>
           <li>프런트엔드 · 백엔드 · 스키마</li>
@@ -374,13 +388,13 @@
         </ul>
       </div>
       <div>
-        <h3>반복해서 쓰는 구조</h3>
+        <h3>다시 타는 항로</h3>
         <p>토스 미니앱 넷은 같은 2계층으로 짰습니다. 화면은 Granite SPA, 서버는 Next.js.
           미니앱에서 받은 토스 인증을 서버가 검증해 Supabase 세션으로 바꾸고, 이후 모든 통신은 그 세션을 씁니다.
           한 번 세운 구조를 다음 앱에서 다시 쓰니 세 번째 앱은 훨씬 빨랐습니다.</p>
       </div>
       <div>
-        <h3>지키는 기준</h3>
+        <h3>항해 수칙</h3>
         <ul>
           <li>돈과 계산이 얽히는 함수엔 테스트를 몰아둡니다</li>
           <li>운영자가 코드 없이 고칠 수 있게 만듭니다</li>
@@ -402,7 +416,7 @@
   <section class="term" id="term">
     <div class="termstick">
       <div class="termwin">
-        <div class="termbar"><i></i><i></i><i></i><span>~/shipped — zsh</span><b id="termpct">0%</b></div>
+        <div class="termbar"><i></i><i></i><i></i><span>~/launches · ground control</span><b id="termpct">0%</b></div>
         <pre class="termout" id="termout"></pre>
       </div>
     </div>
@@ -423,8 +437,8 @@
 
   <section class="year" id="year">
     <p class="tag">2026</p>
-    <h2>아홉 개가 한꺼번에 나온 게 아니라, 넉 달에 걸쳐 하나씩 나왔습니다.</h2>
-    <p class="lead">앞의 것에서 세운 구조를 뒤의 것이 다시 씁니다. 토스 미니앱 넷은 같은 2계층을 공유하고,
+    <h2>아홉 발이 한꺼번에 오른 게 아니라, 넉 달에 걸쳐 하나씩 올랐습니다.</h2>
+    <p class="lead">앞선 발사에서 세운 구조를 다음 발사가 다시 씁니다. 토스 미니앱 넷은 같은 2계층을 공유하고,
       스키마·인증·배포 절차도 그대로 옮겨 갔습니다. 그래서 뒤로 갈수록 만드는 데 걸리는 시간이 줄었습니다.</p>
     <div class="gantt">
       <div class="gmonths"><span>PROJECT</span><span>5월</span><span>6월</span><span>7월</span><span>8월</span></div>
@@ -442,7 +456,7 @@
   </section>
 
   <section class="outro">
-    <h3>다음 줄은<br>당신 회사의 제품입니다.</h3>
+    <h3>교신 끝.<br>다음 궤도는 당신 회사의 제품입니다.</h3>
     <div class="row">
       <a href="mailto:qkrgyrbs12@gmail.com">qkrgyrbs12@gmail.com</a>
       <a href="https://github.com/manabout-town" target="_blank" rel="noopener">github.com/manabout-town</a>
@@ -454,11 +468,11 @@
 
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ─────────── WebGL: 용광로 열기 ─────────── */
+/* ─────────── WebGL: 심우주 성운 ─────────── */
 (function(){
   const c=document.getElementById("bg");
   const gl=c.getContext("webgl",{antialias:false,alpha:false});
-  if(!gl){ c.style.background="radial-gradient(60% 60% at 50% 40%,#2A0E17,#090507)"; return; }
+  if(!gl){ c.style.background="radial-gradient(60% 60% at 50% 40%,#221240,#06070F)"; return; }
   const vs=`attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`;
   const fs=`precision highp float;uniform vec2 r;uniform float t;uniform vec2 m;
   float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -472,13 +486,13 @@ const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
     float d=length(uv-m*.5);
     float glow=smoothstep(1.05,.05,d)*.5+flow*.5;
     glow=pow(glow,2.6);
-    vec3 col=mix(vec3(.034,.019,.026),vec3(.086,.032,.046),flow);
-    col+=vec3(.62,.10,.19)*glow*.95;
-    col+=vec3(.78,.63,.30)*pow(glow,3.6)*.85;
+    vec3 col=mix(vec3(.015,.019,.046),vec3(.036,.027,.080),flow);
+    col+=vec3(.46,.13,.42)*glow*.78;
+    col+=vec3(.80,.78,.66)*pow(glow,3.6)*.85;
     float sheen=pow(flow,3.0);
-    col+=vec3(.55,.44,.20)*sheen*.28;
-    float sp=step(.99925,h(floor(gl_FragCoord.xy*.5)+floor(t*4.)));
-    col+=vec3(1.,.86,.52)*sp*.42*smoothstep(1.2,.1,d);
+    col+=vec3(.52,.53,.62)*sheen*.28;
+    float sp=step(.99885,h(floor(gl_FragCoord.xy*.5)+floor(t*4.)));
+    col+=vec3(.90,.94,1.)*sp*.52*smoothstep(1.2,.1,d);
     col*=1.-.30*length(uv)*.72;
     gl_FragColor=vec4(col,1.);
   }`;
@@ -528,7 +542,7 @@ const P=[
   d:"여행 코스 투표 결과가 그대로 일정이 되고, 일정이 그대로 더치페이 항목이 됩니다. 동시 체크인에서 카운트가 어긋나 RPC 단위 원자적 갱신으로 고쳤습니다. 심의 통과 후 운영 중.",
   m:["LIVE","Granite SPA","114 tests","심의 통과"],img:null,vid:"media/summer.mp4",link:"https://sonanui-yeoreum.vercel.app"},
  {n:"고즈바이",st:"오픈 준비",t:"웹으로 만든<br>한 장짜리 명함",
-  d:"본식스냅 작가의 명함입니다. 가격표도 예약 캘린더도 상단 메뉴도 두지 않았습니다. 표지를 열면 사진만 흐르고, 끝까지 본 사람에게만 카카오톡 채널 하나가 남습니다. 처음엔 정반대로 — 가격 전면 공개와 예약 캘린더로 — 만들었다가 전부 걷어냈습니다.",
+  d:"본식스냅 작가의 명함입니다. 가격표도 예약 캘린더도 상단 메뉴도 두지 않았습니다. 표지를 열면 사진만 흐르고, 끝까지 본 사람에게만 카카오톡 채널 하나가 남습니다. 처음엔 정반대로 만들었습니다. 가격 전면 공개와 예약 캘린더를 붙였다가 전부 걷어냈습니다.",
   m:["Next.js 16","정적 사이트","PWA","사진 교체 대기"],img:null,vid:"media/goesby.mp4",link:"https://goesby.vercel.app"},
  {n:"내돈부터",st:"인증서 대기",t:"이번 달 며칠째부터<br>내 돈인가",
   d:"자영업자가 매일 매출 하나만 넣으면 손익분기 넘긴 날을 알려줍니다. 이 계산이 틀리면 앱 전체가 거짓말이라 계산 함수에만 테스트를 몰아넣었습니다. 약관 5종·동의·연결 끊기까지 직접 처리.",
@@ -560,8 +574,19 @@ track.innerHTML=P.map((p,i)=>`
     <button class="more" data-open="${i}">자세히 보기</button>
   </article>`).join("");
 
-/* ─────────── 깊이 필드: 스크롤로 카드 사이를 통과한다 ─────────── */
-(function(){
+/* ─────────── 궤도 진입 자격 ───────────
+   모바일과 reduced-motion은 three를 아예 내려받지 않는다. 이탈 위험이 가장 큰 구간이라
+   장식보다 첫 화면 속도를 택했다. 여기서 false면 아래 2D 깊이 필드가 최종 화면이다. */
+const COSMOS_OK=(function(){
+  if(RM) return false;
+  if(matchMedia("(max-width:640px)").matches) return false;
+  try{ const t=document.createElement("canvas");
+       return !!(t.getContext("webgl2")||t.getContext("webgl")); }
+  catch(e){ return false; }
+})();
+
+/* ─────────── 깊이 필드: 스크롤로 카드 사이를 통과한다 (3D 폴백) ─────────── */
+function initDepthField(){
   const pin=document.getElementById("pin"), bar=document.getElementById("progbar"),
         label=document.getElementById("plabel"), ret=document.getElementById("reticle"),
         cv=document.getElementById("motes");
@@ -624,12 +649,12 @@ track.innerHTML=P.map((p,i)=>`
     for(let i=0;i<pos.length-1;i++){
       const a=pos[i], b=pos[i+1]; if(!a||!b) continue;
       const al=Math.min(a.a,b.a)*.34; if(al<0.02) continue;
-      ctx.strokeStyle=`rgba(198,162,83,${al.toFixed(3)})`;
+      ctx.strokeStyle=`rgba(216,207,166,${al.toFixed(3)})`;
       ctx.beginPath(); ctx.moveTo(a.x,a.y);
       ctx.quadraticCurveTo((a.x+b.x)/2,(a.y+b.y)/2+46,b.x,b.y); ctx.stroke();
     }
     for(const p of pos){ if(!p||p.a<0.05) continue;
-      ctx.fillStyle=`rgba(240,223,174,${(p.a*.5).toFixed(3)})`;
+      ctx.fillStyle=`rgba(243,239,221,${(p.a*.5).toFixed(3)})`;
       ctx.beginPath(); ctx.arc(p.x,p.y,1.7,0,6.283); ctx.fill(); }
     // 불티
     for(const m of M){
@@ -638,7 +663,7 @@ track.innerHTML=P.map((p,i)=>`
       if(m.y<-0.05){ m.y=1.05; m.x=Math.random(); m.a=.12+Math.random()*.42; }
       if(m.x<-0.05) m.x=1.05; if(m.x>1.05) m.x=-0.05;
       const tw=0.65+0.35*Math.sin(m.p);
-      ctx.fillStyle=`rgba(255,214,140,${(m.a*tw*0.75).toFixed(3)})`;
+      ctx.fillStyle=`rgba(214,224,255,${(m.a*tw*0.75).toFixed(3)})`;
       ctx.beginPath(); ctx.arc(m.x*W,m.y*H,m.r,0,6.283); ctx.fill();
     }
   }
@@ -661,7 +686,67 @@ track.innerHTML=P.map((p,i)=>`
     requestAnimationFrame(tick);
   }
   tick();
-})();
+}
+if(!COSMOS_OK) initDepthField();
+
+/* ─────────── 3D 궤도: 첫 페인트 이후에만 three를 요청한다 ───────────
+   히어로 텍스트는 이 import를 기다리지 않는다. 실패하면 깊이 필드로 되돌아간다. */
+if(COSMOS_OK) addEventListener("load",()=>{
+  import("./js/cosmos.js").then(({initCosmos})=>{
+    const stick=document.querySelector("#pin .stick");
+    if(!stick){ initDepthField(); return; }
+    const cv=document.createElement("canvas"); cv.id="cosmos";
+    stick.insertBefore(cv,stick.firstChild);
+    const cards=[...document.querySelectorAll("#track .card")];
+    const label=document.getElementById("plabel"), bar=document.getElementById("progbar");
+    let lastFocus=-1;
+
+    const inst=initCosmos({
+      canvas:cv,
+      projects:P.map(p=>({n:p.n,vid:p.vid,wide:!!p.wide})),
+      onUpdate(states){
+        let focus=-1;
+        for(let i=0;i<cards.length;i++){
+          const s=states[i]; if(!s) continue;
+          const c=cards[i], wide=innerWidth>=1100;
+          /* 카드는 천체 가장자리에서 시작한다. 겹치면 둘 다 못 읽는다. */
+          const ox=wide? s.r+34 : 0, oy=wide? 0 : s.r+30;
+          /* 천체를 따라가되 뷰포트 밖으로 나가지 않게 잡아둔다. 잘린 제목은 없느니만 못하다.
+             카드가 화면보다 길면 위쪽을 살린다. 제목이 먼저 읽혀야 한다. */
+          const h=c.offsetHeight||420, m=26, hi=innerHeight-h-m;
+          let ty=hi<m ? m : Math.min(Math.max((wide? s.y-h/2 : s.y+oy), m), hi);
+          c.style.transform=`translate3d(${s.x+ox}px,${ty}px,0)`+(wide?"":"translate(-50%,0)");
+          c.style.opacity=s.opacity;
+          c.classList.toggle("focus",!!s.focus);
+          if(s.focus) focus=i;
+        }
+        if(focus>=0&&focus!==lastFocus){
+          lastFocus=focus;
+          if(label) label.textContent=String(focus+1).padStart(2,"0")+" / "
+            +String(P.length).padStart(2,"0")+" · "+P[focus].n;
+        }
+      }
+    });
+    if(!inst){ initDepthField(); return; }
+    document.documentElement.classList.add("cosmos");
+    if(label) label.classList.add("on");
+
+    const pin=document.getElementById("pin");
+    let ticking=false;
+    function onScroll(){
+      if(ticking) return; ticking=true;
+      requestAnimationFrame(()=>{
+        const span=pin.offsetHeight-innerHeight;
+        const p=span>0?Math.min(1,Math.max(0,-pin.getBoundingClientRect().top/span)):0;
+        inst.setProgress(p);
+        if(bar) bar.style.transform="scaleX("+p+")";
+        ticking=false;
+      });
+    }
+    addEventListener("scroll",onScroll,{passive:true}); onScroll();
+    let rt; addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(()=>inst.resize(),150); });
+  }).catch(()=>{ initDepthField(); });
+});
 
 /* ─────────── 케이스 상세 (FLIP) ─────────── */
 (function(){
@@ -778,11 +863,11 @@ track.innerHTML=P.map((p,i)=>`
   // 화면에 적는 값은 전부 이 페이지의 프로젝트 데이터에서 온다 — 지어낸 수치 없음.
   const L=[];
   const push=(c,t)=>L.push([c,t]);
-  push("cmd","cat shipped.json | jq -r '.[] | .name'");
+  push("cmd","cat manifest.json | jq -r '.[] | .name'");
   P.forEach(p=>push("dim","  "+p.n));
   push("dim","");
-  push("cmd","./ship.sh --all");
-  push("dim","2026 · 기획 · 구현 · 심사 · 배포까지 한 사람");
+  push("cmd","./launch.sh --all");
+  push("dim","2026 · 기획 · 구현 · 심사 · 발사까지 관제사 한 명");
   push("dim","");
   P.forEach((p,i)=>{
     const no=String(i+1).padStart(2,"0");
@@ -842,7 +927,7 @@ track.innerHTML=P.map((p,i)=>`
     list.innerHTML=rows.map(({p,i},k)=>
       `<button type="button" data-k="${k}" aria-selected="${k===0}"><s>${String(i+1).padStart(2,"0")}</s>`+
       `<span>${p.n}</span><em>${p.st}</em></button>`).join("")
-      || `<button type="button" disabled style="color:#6E5A54">일치하는 프로젝트가 없습니다</button>`;
+      || `<button type="button" disabled style="color:#5E6688">일치하는 프로젝트가 없습니다</button>`;
   }
   function open(){ pal.classList.add("on"); inp.value=""; render(); inp.focus(); }
   function close(){ pal.classList.remove("on"); }
@@ -882,7 +967,7 @@ track.innerHTML=P.map((p,i)=>`
 (function(){
   const el=document.getElementById("hcmd");
   if(!el) return;
-  const TXT="./whoami --year 2026";
+  const TXT="./launch --log 2026";
   if(RM){ el.innerHTML='<b>$</b> '+TXT; return; }
   el.innerHTML='<b>$</b> <span></span><i></i>';
   const span=el.querySelector("span");
