@@ -197,26 +197,32 @@ function makeBodyMaterial() {
       uOpacity: { value: 1 },
     },
     vertexShader: `
-      varying vec2 vUv; varying vec3 vNormalV; varying vec3 vViewPos;
+      varying vec2 vUv; varying vec3 vNormalV; varying vec3 vViewPos; varying vec3 vCenterV;
       void main(){
         vUv = uv;
         vNormalV = normalize(normalMatrix * normal);
+        vCenterV = (modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
         vec4 mv = modelViewMatrix * vec4(position, 1.0);
         vViewPos = mv.xyz;
         gl_Position = projectionMatrix * mv;
       }`,
     fragmentShader: `
       precision highp float;
-      varying vec2 vUv; varying vec3 vNormalV; varying vec3 vViewPos;
+      varying vec2 vUv; varying vec3 vNormalV; varying vec3 vViewPos; varying vec3 vCenterV;
       uniform sampler2D uMap; uniform float uHasVideo; uniform vec2 uSpan;
       uniform vec3 uFill; uniform vec3 uRim; uniform float uFocus; uniform float uOpacity;
       void main(){
         vec3 N = normalize(vNormalV);
         /* 구면 UV를 쓰면 지오메트리마다 이음새 위치와 상하 방향이 달라진다.
-           대신 시선 공간 법선으로 찍어 영상 면이 항상 카메라를 정면으로 보게 했다. */
-        vec2 t = N.xy / uSpan * 0.5 + 0.5;
+           대신 시선 공간 법선으로 찍어 영상 면이 항상 카메라를 정면으로 보게 했다.
+           기준축은 카메라 정면(+Z)이 아니라 천체 중심→카메라 방향이다. 천체를 화면
+           왼쪽 셋째로 밀어두므로 +Z를 쓰면 영상이 원반 한쪽으로 밀려난다. */
+        vec3 A = normalize(-vCenterV);
+        vec3 R = normalize(cross(vec3(0.0, 1.0, 0.0), A));
+        vec3 U = cross(A, R);
+        vec2 t = vec2(dot(N, R), dot(N, U)) / uSpan * 0.5 + 0.5;
         vec3 base = uFill;
-        if (uHasVideo > 0.5 && N.z > 0.0) {
+        if (uHasVideo > 0.5 && dot(N, A) > 0.0) {
           vec2 e = smoothstep(vec2(0.0), vec2(0.03), t) * (1.0 - smoothstep(vec2(0.97), vec2(1.0), t));
           base = mix(uFill, texture2D(uMap, clamp(t, 0.0, 1.0)).rgb, e.x * e.y);
         }
