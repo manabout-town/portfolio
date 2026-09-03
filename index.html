@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>박효균 — 열여섯 번의 발사 기록</title>
-<meta name="description" content="AI를 설비로 쓰는 1인 개발자 박효균. 2026년에 열여섯 개를 기획·구현·심사·배포했고 여덟 개가 지금 운영 중입니다. 국비 백엔드 과정 수료(Java·Spring Boot) 후 단독 출시로 넘어왔습니다.">
+<meta name="description" content="AI를 설비로 쓰는 1인 개발자 박효균. 2026년 2~7월 「생성형 AI 챗봇 활용 시니어 슬립테크 디지털 치료제 개발자 양성과정」 수료 후, 혼자 열여섯 개를 기획·구현·심사·배포했고 여덟 개가 지금 운영 중입니다.">
 <meta name="theme-color" content="#06070F">
 <meta property="og:type" content="website">
 <meta property="og:title" content="박효균 — 열여섯 번의 발사 기록">
@@ -292,9 +292,10 @@
     gap:clamp(24px,3vw,52px);border-top:1px solid #1B2038;padding-top:clamp(28px,3.4vw,44px)}
   .cols h3{margin:0 0 10px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
   .cols p{margin:0;color:#A6AEC6;font-size:14.5px;line-height:1.8}
-  .cols ul{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
-  .cols li{color:#B9C0D6;font-size:14px;line-height:1.6;padding-left:15px;position:relative}
+  .cols ul{margin:10px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+  .cols li{color:#B9C0D6;font-size:14px;line-height:1.72;padding-left:15px;position:relative}
   .cols li::before{content:"—";position:absolute;left:0;color:var(--gold);opacity:.65}
+  .cols li b{font-family:var(--f-mono);font-size:12.5px;font-weight:400;color:var(--gold-hi);letter-spacing:.02em;margin-right:2px}
   .figs{margin-top:clamp(34px,4.4vw,60px);display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
     gap:clamp(16px,2vw,30px);border-top:1px solid #1B2038;padding-top:clamp(24px,3vw,36px)}
   .figs div b{display:block;font-family:var(--f-mono);font-size:clamp(24px,3vw,38px);font-weight:600;letter-spacing:-.03em;
@@ -309,6 +310,21 @@
   .hcmd b{color:var(--gold);font-weight:400}
   .hcmd i{display:inline-block;width:8px;height:1em;background:var(--gold);vertical-align:-1px;
     animation:blink 1.05s steps(1) infinite}
+
+
+  /* ── 줄바꿈 조율 ── */
+  p,li,figcaption{text-wrap:pretty}
+  h1,h2,h3,h4{text-wrap:balance}
+  .sub,.about .lead,.method .lead,.mcard>p,.mcard .mnote,.aigrid p,
+  .card p,#sheet .blocks p,.cols p,.cols li,.mlist li,.outro .obit{text-wrap:pretty}
+  .mcard h3,.aigrid b,.outro h3,.card h2,#sheet h3{text-wrap:balance}
+  /* 본문 한 줄이 너무 길어지면 눈이 되돌아올 자리를 잃는다 — 폭을 글자 수로 묶어 둔다. */
+  .about .lead{max-width:60ch}
+  .method .lead{max-width:60ch}
+  .mcard>p{max-width:50ch}
+  .mlist li{max-width:52ch}
+  .aigrid p{max-width:48ch}
+  #sheet .blocks p{max-width:56ch}
 
   /* ── AI 작업 방식 ── */
   .method{position:relative;padding:clamp(80px,13vh,150px) clamp(18px,4vw,54px) clamp(70px,11vh,130px);
@@ -333,7 +349,7 @@
   .mcard strong{font-weight:600;color:var(--gold-hi)}
   .mcard em{font-style:normal;color:#CFD5E6}
   .mlist{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:11px}
-  .mlist li{position:relative;padding-left:16px;color:#B9C0D6;font-size:13.8px;line-height:1.75}
+  .mlist li{position:relative;padding-left:16px;color:#B9C0D6;font-size:13.8px;line-height:1.82}
   .mlist li::before{content:"—";position:absolute;left:0;top:0;color:var(--gold);opacity:.6}
   .mlist b{font-family:var(--f-mono);font-size:12.5px;font-weight:400;color:var(--gold-hi);letter-spacing:.02em}
   .mcard .mnote{margin-top:14px;padding-top:14px;border-top:1px solid #1B2038;color:#7E86A4;font-size:13.2px;line-height:1.75}
@@ -370,9 +386,11 @@
   .gtrack i{position:absolute;top:6px;height:10px;border-radius:1px;display:block;
     background:linear-gradient(90deg,rgba(140,30,82,.92),var(--gold));opacity:.92}
   .gtrack i.team{background:linear-gradient(90deg,rgba(44,14,51,.92),rgba(124,128,153,.85))}
+  .gtrack i.edu{background:repeating-linear-gradient(90deg,#3A4060 0 6px,transparent 6px 11px);opacity:.75;height:6px;top:8px}
+  .grow.edu b{color:var(--steel)}
   .gtrack em{position:absolute;top:2px;font-style:normal;font-family:var(--f-mono);font-size:10.5px;
     color:var(--steel);white-space:nowrap;font-variant-numeric:tabular-nums}
-  .gnote{margin-top:16px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;color:var(--steel-d)}
+  .gnote{margin-top:18px;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;line-height:1.85;color:var(--steel);max-width:74ch}
   @media (max-width:720px){ .grow{grid-template-columns:minmax(78px,100px) 1fr} .grow b{font-size:12px}
     .gtrack em{display:none} .gmonths{grid-template-columns:minmax(78px,100px) repeat(5,1fr)} }
 </style>
@@ -403,7 +421,7 @@
         <span class="ln"><i><em>만든 게</em> 아니라</i></span>
         <span class="ln"><i><b>내보냈다</b></i></span>
       </h1>
-      <p class="sub">국비 백엔드 과정을 마치고, 그 뒤 넉 달 동안 혼자 열여섯 개를 내보냈습니다.
+      <p class="sub">생성형 AI 활용 개발자 양성과정을 마치고, 그 뒤 넉 달 동안 혼자 열여섯 개를 내보냈습니다.
         AI는 코드를 대신 써 주는 도구가 아니라 제가 절차를 굳혀 두는 <b style="font-weight:600;color:#D8CFA6">설비</b>입니다.</p>
       <div class="metrics">
         <div><b>16</b><span>Shipped</span></div>
@@ -417,20 +435,26 @@
 
   <section class="about" id="about">
     <p class="tag">About</p>
-    <h2>국비 과정에서 배운 백엔드를 <em>혼자 출시하는 능력</em>으로 바꿨습니다.</h2>
-    <p class="lead">국비지원 백엔드 개발 과정을 수료했습니다. 마지막 팀 프로젝트로 7명이 4주간
-      Java 21 · Spring Boot 3.4.5 기반의 역제안 입찰 플랫폼(SevMerge)을 만들었고, 저는 결제·정산 계층을 맡았습니다.
-      거기서 배운 것 — 트랜잭션 경계, 상태 머신, 인가 계층 — 을 들고 나와 그 뒤 넉 달 동안 혼자 열여섯 개를 내보냈습니다.
-      회사가 나눠 맡는 일(기획 · 화면 · 서버 · 약관 · 심사 · 배포 · 운영)을 한 사람이 이어서 합니다.
-      그래서 "동작하는 데모"가 아니라 결제가 일어나고, 심의를 통과하고, 사용자가 매일 여는 서비스를 내놓습니다.</p>
+    <h2>생성형 AI를 전제로 배운 백엔드를<br><em>혼자 출시하는 능력</em>으로 바꿨습니다.</h2>
+    <p class="lead">2026년 2월부터 7월까지 국비지원 「생성형 AI 챗봇 활용 시니어 슬립테크 디지털 치료제 개발자 양성과정」을 수료했습니다.
+      이름 그대로 생성형 AI를 제품에 붙이는 것을 전제로 배운 과정입니다.</p>
+    <p class="lead">마지막 팀 프로젝트로 7명이 4주간 Java 21 · Spring Boot 3.4.5 기반의 역제안 입찰 플랫폼(SevMerge)을 만들었습니다.
+      저는 결제·정산 계층을 맡았고, 팀은 거기에 Spring AI로 의뢰 작성 도우미를 붙였습니다.</p>
+    <p class="lead">거기서 배운 트랜잭션 경계와 상태 머신, 인가 계층을 들고 나와
+      그 뒤 넉 달 동안 혼자 열여섯 개를 내보냈습니다.</p>
+    <p class="lead">회사가 나눠 맡는 일을 한 사람이 이어서 합니다.
+      기획, 화면, 서버, 약관, 심사, 배포, 그리고 운영까지.
+      그래서 <span style="white-space:nowrap">"동작하는 데모"</span>가 아니라 결제가 일어나고, 심의를 통과하고,
+      사용자가 매일 여는 서비스를 내놓습니다.</p>
 
     <div class="cols">
       <div>
         <h3>이력</h3>
         <ul>
-          <li>국비지원 백엔드 개발 과정 수료 — Java · Spring Boot · MySQL</li>
+          <li><b>2026.02 ~ 07</b> 국비지원 「생성형 AI 챗봇 활용 시니어 슬립테크 디지털 치료제 개발자 양성과정」 수료</li>
+          <li>Java · Spring Boot · MySQL — 생성형 AI 연동을 전제로 한 커리큘럼</li>
           <li>최종 팀 프로젝트 SevMerge (7명 · 4주) — 결제·정산 담당, 커밋 115</li>
-          <li>2026.05~09 단독 출시 16건 · 운영 중 8건</li>
+          <li><b>2026.05 ~ 09</b> 단독 출시 16건 · 운영 중 8건</li>
           <li>사업자 등록 후 직접 판매 · 위탁판매 자동화 운영</li>
         </ul>
       </div>
@@ -584,10 +608,11 @@
   <section class="year" id="year">
     <p class="tag">2026</p>
     <h2>열여섯 발이 한꺼번에 오른 게 아니라, 다섯 달에 걸쳐 하나씩 올랐습니다.</h2>
-    <p class="lead">왼쪽 끝이 국비 과정의 마지막 팀 프로젝트이고, 그 뒤는 전부 혼자입니다. 앞선 발사에서 세운 구조를 다음 발사가 다시 씁니다. 토스 미니앱 다섯은 같은 2계층을 공유하고,
+    <p class="lead">첫 줄이 교육 과정, 둘째 줄이 그 마지막 팀 프로젝트입니다. 그 아래는 전부 혼자 만든 것입니다. 앞선 발사에서 세운 구조를 다음 발사가 다시 씁니다. 토스 미니앱 다섯은 같은 2계층을 공유하고,
       스키마·인증·배포 절차도 그대로 옮겨 갔습니다. 그래서 뒤로 갈수록 만드는 데 걸리는 시간이 줄었습니다.</p>
     <div class="gantt">
       <div class="gmonths"><span>PROJECT</span><span>5월</span><span>6월</span><span>7월</span><span>8월</span><span>9월</span></div>
+      <div class="grow edu"><b>국비 과정</b><div class="gtrack"><i class="edu" style="left:0%;width:59.9%"></i><em style="left:calc(59.9% + 10px)">◀ 2026.02 개강 · 07 수료</em></div></div>
       <div class="grow"><b>SevMerge</b><div class="gtrack"><i class="team" style="left:0.0%;width:39.5%"></i><em style="left:calc(39.5% + 10px)">팀 · 내 커밋 115</em></div></div>
       <div class="grow"><b>탁카</b><div class="gtrack"><i class="" style="left:28.9%;width:21.7%"></i><em style="left:calc(50.7% + 10px)">116 commits</em></div></div>
       <div class="grow"><b>손안의여름</b><div class="gtrack"><i class="" style="left:45.4%;width:23.7%"></i><em style="left:calc(69.1% + 10px)">162 commits</em></div></div>
@@ -605,7 +630,7 @@
       <div class="grow"><b>푸른새싹</b><div class="gtrack"><i class="" style="left:70.4%;width:3.9%"></i><em style="left:calc(74.3% + 10px)">209 commits</em></div></div>
       <div class="grow"><b>삿포로 여행앱</b><div class="gtrack"><i class="" style="left:77.0%;width:5.9%"></i><em style="left:calc(82.9% + 10px)">9 commits · 실사용</em></div></div>
     </div>
-    <p class="gnote">기간과 커밋 수는 각 저장소의 git 이력에서 그대로 가져왔습니다. 저장소를 따로 두지 않은 한 장짜리는 실제 산출물 수를 적었습니다.</p>
+    <p class="gnote">교육 과정은 2월에 시작해 이 표의 왼쪽 밖에서 이어져 옵니다.<br>기간과 커밋 수는 각 저장소의 git 이력에서 그대로 가져왔고, 저장소를 따로 두지 않은 한 장짜리는 실제 산출물 수를 적었습니다.</p>
   </section>
 
   <section class="outro">
