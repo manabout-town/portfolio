@@ -4,13 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>박효균 — 열여섯 번의 발사 기록</title>
-<meta name="description" content="AI를 설비로 쓰는 1인 개발자 박효균. 2026년 2~7월 「생성형 AI 챗봇 활용 시니어 슬립테크 디지털 치료제 개발자 양성과정」 수료 후, 혼자 열여섯 개를 기획·구현·심사·배포했고 여덟 개가 지금 운영 중입니다.">
+<meta name="description" content="AI를 설비로 쓰는 1인 개발자 박효균. 코리아IT아카데미 부산 서면점에서 2026년 2~7월 「생성형 AI 챗봇 활용 시니어 슬립테크 디지털 치료제 개발자 양성과정」 수료 후, 혼자 열여섯 개를 기획·구현·심사·배포했고 여덟 개가 지금 운영 중입니다.">
 <meta name="theme-color" content="#06070F">
 <meta property="og:type" content="website">
 <meta property="og:title" content="박효균 — 열여섯 번의 발사 기록">
 <meta property="og:description" content="AI를 설비로 쓰는 1인 개발자. 2026년 5월~9월, 열여섯 개 출시 · 여덟 개 운영 중 · 테스트 1,240개.">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
+<meta property="og:url" content="https://portfolio-iota-azure-47.vercel.app">
+<meta property="og:image" content="https://portfolio-iota-azure-47.vercel.app/media/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="박효균 — 열여섯 개를 만든 게 아니라 내보냈다. 출시 16 · 운영 중 8 · 테스트 1,240 · 자작 AI 스킬 7">
+<meta name="twitter:image" content="https://portfolio-iota-azure-47.vercel.app/media/og.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2306070F'/%3E%3Cpath d='M8 22 L16 8 L24 22' stroke='%23D8CFA6' stroke-width='2.6' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -63,8 +69,9 @@
   .metrics div{display:flex;flex-direction:column;gap:3px}
   .metrics b{font-size:clamp(26px,3.6vw,46px);font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
   .metrics span{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--steel)}
-  .scrollcue{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--steel);
+  .scrollcue{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--steel);text-decoration:none;width:max-content;
     display:flex;align-items:center;gap:10px}
+  .scrollcue:hover{color:var(--gold-hi)}
   .scrollcue i{display:block;width:52px;height:1px;background:linear-gradient(90deg,var(--gold-hi),transparent);animation:slide 2.2s infinite}
   @keyframes slide{0%{transform:scaleX(.2);transform-origin:left}50%{transform:scaleX(1);transform-origin:left}
     51%{transform-origin:right}100%{transform:scaleX(.2);transform-origin:right}}
@@ -288,7 +295,7 @@
   .about h2 em{font-style:normal;background:linear-gradient(96deg,#7C8099,var(--gold) 40%,var(--gold-hi) 85%);
     -webkit-background-clip:text;background-clip:text;color:transparent}
   .about .lead{margin:clamp(18px,2.2vw,28px) 0 0;max-width:62ch;color:#B9C0D6;font-size:clamp(15px,1.25vw,17.5px);line-height:1.85}
-  .cols{margin-top:clamp(38px,5vw,72px);display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));
+  .cols{margin-top:clamp(38px,5vw,72px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));
     gap:clamp(24px,3vw,52px);border-top:1px solid #1B2038;padding-top:clamp(28px,3.4vw,44px)}
   .cols h3{margin:0 0 10px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
   .cols p{margin:0;color:#A6AEC6;font-size:14.5px;line-height:1.8}
@@ -325,6 +332,64 @@
   .mlist li{max-width:52ch}
   .aigrid p{max-width:48ch}
   #sheet .blocks p{max-width:56ch}
+
+  /* ── 20초 요약 (오프닝) ── */
+  .ov{position:relative;max-width:1180px;margin:0 auto;
+    padding:clamp(64px,10vh,120px) clamp(18px,4vw,54px) clamp(56px,8vh,96px)}
+  .ov .tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:0}
+  .ov h2{margin:14px 0 0;font-size:clamp(24px,3.3vw,44px);line-height:1.22;letter-spacing:-.035em;
+    font-weight:740;max-width:24ch;text-wrap:balance}
+  .ov h2 em{font-style:normal;background:linear-gradient(96deg,#7C8099,var(--gold) 40%,var(--gold-hi) 85%);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .ovgrid{margin-top:clamp(30px,4vw,52px);display:grid;
+    grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(26px,4vw,64px);align-items:start}
+  @media (max-width:860px){ .ovgrid{grid-template-columns:1fr} }
+  .ovleft p{margin:0 0 16px;max-width:56ch;color:#A6AEC6;font-size:15px;line-height:1.85;text-wrap:pretty}
+  .ovleft p b{color:var(--gold-hi);font-weight:600}
+  .ovcta{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap}
+  .ovcta a{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    text-decoration:none;color:#B9C0D6;border:1px solid #2A3050;border-radius:2px;padding:9px 15px}
+  .ovcta a:hover{border-color:var(--gold);color:var(--gold-hi);background:rgba(216,207,166,.08)}
+  .ovlab{margin:0 0 12px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--steel)}
+  .ovlab s{text-decoration:none;color:var(--gold)}
+  .ovlist{margin:0;padding:0;list-style:none;border-top:1px solid #1B2038}
+  .ovlist li{border-bottom:1px solid rgba(27,32,56,.75)}
+  .ovlist button{display:flex;width:100%;align-items:baseline;gap:10px;background:none;border:0;
+    cursor:pointer;padding:9px 2px;font:inherit;color:#B9C0D6;text-align:left}
+  .ovlist button:hover{color:var(--white)}
+  .ovlist button:hover i{color:var(--gold-hi)}
+  .ovlist s{text-decoration:none;font-family:var(--f-mono);font-size:11px;color:var(--steel-d);min-width:2.4ch}
+  .ovlist i{font-style:normal;font-size:14px;letter-spacing:-.01em}
+  .ovlist em{margin-left:auto;font-style:normal;font-family:var(--f-mono);font-size:10px;
+    letter-spacing:.1em;color:var(--steel);white-space:nowrap}
+  .ovlist em.live{color:var(--gold)}
+  .ovnote{margin:12px 0 0;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;color:var(--steel-d)}
+  .ovpick{margin-top:clamp(38px,5vw,68px);border-top:1px solid #1B2038;padding-top:clamp(26px,3.2vw,40px)}
+  .pickgrid{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));
+    gap:clamp(14px,1.8vw,22px)}
+  .pickgrid button{display:block;text-align:left;cursor:pointer;font:inherit;
+    border:1px solid #1B2038;border-radius:3px;padding:clamp(18px,2vw,24px);
+    background:linear-gradient(180deg,rgba(16,20,38,.5),rgba(6,7,15,.3));transition:border-color .25s,transform .25s}
+  .pickgrid button:hover{border-color:#3A4060;transform:translateY(-2px)}
+  .pickgrid s{display:block;text-decoration:none;font-family:var(--f-mono);font-size:10.5px;
+    letter-spacing:.2em;color:var(--gold)}
+  .pickgrid b{display:block;margin-top:10px;font-size:15px;font-weight:650;letter-spacing:-.015em;
+    color:var(--white);line-height:1.4;text-wrap:balance}
+  .pickgrid span{display:block;margin-top:9px;color:#8F97B4;font-size:13.2px;line-height:1.75;text-wrap:pretty}
+
+  /* ── 단독으로 끝내는 범위 ── */
+  .scope{margin-top:clamp(40px,5vw,72px);border-top:1px solid #1B2038;padding-top:clamp(28px,3.4vw,44px)}
+  .scope h3{margin:0;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--gold);font-weight:400}
+  .scope .slead{margin:12px 0 0;max-width:60ch;color:#A6AEC6;font-size:14.5px;line-height:1.8}
+  .scope .slead em{font-style:normal;color:var(--gold-hi)}
+  .sgrid{margin-top:clamp(22px,2.6vw,34px);display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));
+    gap:clamp(16px,1.8vw,24px) clamp(20px,2.4vw,40px)}
+  .sgrid>div{border-top:1px solid #1B2038;padding-top:13px}
+  .sgrid b{display:block;font-size:13.5px;font-weight:650;letter-spacing:-.01em;color:var(--white)}
+  .sgrid p{margin:7px 0 0;color:#8F97B4;font-size:13px;line-height:1.75;max-width:42ch}
 
   /* ── AI 작업 방식 ── */
   .method{position:relative;padding:clamp(80px,13vh,150px) clamp(18px,4vw,54px) clamp(70px,11vh,130px);
@@ -430,13 +495,64 @@
         <div><b>7</b><span>AI skills built</span></div>
       </div>
     </div>
-    <div class="scrollcue"><i></i>Descend</div>
+    <a class="scrollcue" href="#overview"><i></i>20초 요약부터</a>
+  </section>
+
+
+  <section class="ov" id="overview">
+    <p class="tag">20초 요약</p>
+    <h2>혼자 만들고, 혼자 심사받고, 혼자 배포합니다.<br>그걸 <em>열여섯 번</em> 했습니다.</h2>
+
+    <div class="ovgrid">
+      <div class="ovleft">
+        <p><b>어디서 왔나.</b> 2026년 2월부터 7월까지 코리아IT아카데미 부산 서면점에서
+          국비지원 「생성형 AI 챗봇 활용 시니어 슬립테크 디지털 치료제 개발자 양성과정」을 수료했습니다.
+          최종 팀 프로젝트에서는 7명 중 결제·정산 계층을 맡았습니다.</p>
+        <p><b>그 뒤 무엇을 했나.</b> 넉 달 동안 혼자 열여섯 개를 내보냈습니다.
+          여덟 개는 지금 사용자가 쓰고, 하나는 사업자를 내고 직접 팝니다.
+          데모가 아니라 결제가 일어나고 심의를 통과한 것들입니다.</p>
+        <p><b>AI를 어떻게 쓰나.</b> 코드를 대신 써 주는 도구가 아니라 절차를 굳혀 두는 설비로 씁니다.
+          직접 만든 스킬 7종, 눈이 아니라 수치로 판정하는 검증 루프,
+          그리고 제품 안에 직접 넣은 AI 네 건.</p>
+        <div class="ovcta">
+          <a href="#method">AI 작업 방식</a>
+          <a href="#about">이력 · 범위</a>
+          <a href="#year">2026 기록</a>
+          <a href="mailto:qkrgyrbs12@gmail.com">연락</a>
+        </div>
+      </div>
+
+      <div class="ovright">
+        <p class="ovlab">내보낸 것 <s id="ovcount"></s></p>
+        <ul class="ovlist" id="ovlist"></ul>
+        <p class="ovnote">이름을 누르면 그 프로젝트로 바로 갑니다.</p>
+      </div>
+    </div>
+
+    <div class="ovpick">
+      <p class="ovlab">시간이 없다면 이 셋만</p>
+      <div class="pickgrid">
+        <button type="button" data-jump="4">
+          <s>01</s><b>탁카 — 서류 진위를 모델이 먼저 읽는다</b>
+          <span>Claude Vision이 고정 스키마로 판정하고, Clova OCR과 국세청 API를 겹쳐 3중으로 확인합니다. 모델을 최종 심판이 아니라 한 표로 쓰는 설계.</span>
+        </button>
+        <button type="button" data-jump="2">
+          <s>02</s><b>포토 아뜰리에 — 서버 없이 추론한다</b>
+          <span>얼굴 랜드마크와 인물 세그멘테이션을 브라우저 안에서 돌립니다. 개인정보를 "잘 지키겠다"가 아니라 "가질 수 없게" 만든 쪽.</span>
+        </button>
+        <button type="button" data-jump="5">
+          <s>03</s><b>위탁판매 자동화 — 코드가 장사를 돌린다</b>
+          <span>파이썬 32개가 수집·필터·조립·등록을 나눠 맡고, 게이트 두 개가 잘못된 상품을 스스로 거부합니다. 직접 팔아 보고 숫자로 한계까지 확인했습니다.</span>
+        </button>
+      </div>
+    </div>
   </section>
 
   <section class="about" id="about">
     <p class="tag">About</p>
     <h2>생성형 AI를 전제로 배운 백엔드를<br><em>혼자 출시하는 능력</em>으로 바꿨습니다.</h2>
-    <p class="lead">2026년 2월부터 7월까지 국비지원 「생성형 AI 챗봇 활용 시니어 슬립테크 디지털 치료제 개발자 양성과정」을 수료했습니다.
+    <p class="lead">2026년 2월부터 7월까지 코리아IT아카데미 부산 서면점에서
+      국비지원 「생성형 AI 챗봇 활용 시니어 슬립테크 디지털 치료제 개발자 양성과정」을 수료했습니다.
       이름 그대로 생성형 AI를 제품에 붙이는 것을 전제로 배운 과정입니다.</p>
     <p class="lead">마지막 팀 프로젝트로 7명이 4주간 Java 21 · Spring Boot 3.4.5 기반의 역제안 입찰 플랫폼(SevMerge)을 만들었습니다.
       저는 결제·정산 계층을 맡았고, 팀은 거기에 Spring AI로 의뢰 작성 도우미를 붙였습니다.</p>
@@ -451,20 +567,11 @@
       <div>
         <h3>이력</h3>
         <ul>
-          <li><b>2026.02 ~ 07</b> 국비지원 「생성형 AI 챗봇 활용 시니어 슬립테크 디지털 치료제 개발자 양성과정」 수료</li>
-          <li>Java · Spring Boot · MySQL — 생성형 AI 연동을 전제로 한 커리큘럼</li>
+          <li><b>2026.02 ~ 07</b> 코리아IT아카데미 부산 서면점<br>국비지원 「생성형 AI 챗봇 활용 시니어 슬립테크 디지털 치료제 개발자 양성과정」 수료</li>
+          <li>Java · SQL · Spring Boot · React — 생성형 AI 연동을 전제로 한 커리큘럼</li>
           <li>최종 팀 프로젝트 SevMerge (7명 · 4주) — 결제·정산 담당, 커밋 115</li>
           <li><b>2026.05 ~ 09</b> 단독 출시 16건 · 운영 중 8건</li>
           <li>사업자 등록 후 직접 판매 · 위탁판매 자동화 운영</li>
-        </ul>
-      </div>
-      <div>
-        <h3>단독으로 끝내는 범위</h3>
-        <ul>
-          <li>문제 정의 · 화면 설계 · 디자인 시스템</li>
-          <li>프런트엔드 · 백엔드 · 스키마 · RLS</li>
-          <li>약관 · 개인정보 처리 · 심사 대응</li>
-          <li>배포 · 도메인 · 운영 데이터 정리</li>
         </ul>
       </div>
       <div>
@@ -481,6 +588,27 @@
           <li>법으로 정해진 표기는 화면 정책으로 강제합니다</li>
           <li>지킬 수 있는 약속만 약관에 씁니다</li>
         </ul>
+      </div>
+    </div>
+
+
+    <div class="scope">
+      <h3>단독으로 끝내는 범위</h3>
+      <p class="slead">아래는 "할 수 있다"가 아니라 <em>열여섯 개를 내보내면서 실제로 매번 직접 한 것</em>입니다.
+        옆에 붙인 것들은 그 일을 한 저장소에 남아 있는 근거입니다.</p>
+      <div class="sgrid">
+        <div><b>제품 정의</b><p>문제 정의 · 사용자 흐름 · 정보 구조 · 화면 설계 · 디자인 시스템 · 카피</p></div>
+        <div><b>프런트엔드</b><p>Next.js App Router · React 19 · Expo React Native · Granite SPA · Tailwind · 바닐라 JS · Canvas 2D · WebGL 셰이더</p></div>
+        <div><b>백엔드</b><p>Next.js Route Handler · Spring Boot · Postgres 스키마 설계 · RLS 정책 · RPC 원자적 갱신 · 마이그레이션 94개</p></div>
+        <div><b>인증 · 권한</b><p>토스 미니앱 인증 서버 검증 → Supabase 세션 교환 · 기기별 익명 키 · 초대 코드 · 관리자 권한 분리 · KYC</p></div>
+        <div><b>결제 · 정산</b><p>토스페이먼츠 연동 · 서버 사이드 승인 · 에스크로 계층 분리 · 조건부 UPDATE 이중 차감 방지 · 손익분기 계산</p></div>
+        <div><b>AI 연동</b><p>Claude Vision 문서 판정 · TensorFlow.js 온디바이스 추론 · Spring AI · llms.txt와 AI 크롤러 정책</p></div>
+        <div><b>품질</b><p>Vitest 1,240개 · Playwright E2E와 수치 어서션 · 문항 정답 실행 검증 370건 · 레드팀/블루팀 라운드</p></div>
+        <div><b>심사 · 법무</b><p>이용약관 · 개인정보 처리방침 · 동의 흐름 · 연결 끊기 · 어린이제품 KC 안전정보 · 앱 심의 반려 대응</p></div>
+        <div><b>배포 · 운영</b><p>Vercel 고정 alias · Expo EAS · ait 미니앱 배포 · 도메인 · 시드 스크립트 · 운영 데이터 정리 · 장애 대응</p></div>
+        <div><b>콘텐츠 · 에셋</b><p>일러스트 50장 · 내레이션 음원 100개 · 로고와 브랜드 가이드 · 데모 영상 자동 녹화 파이프라인</p></div>
+        <div><b>사업</b><p>사업자 등록 · 자체몰 직접 판매 · 위탁판매 자동화 상품 375개 · 기업영업 아웃리치 53곳</p></div>
+        <div><b>AI 작업 설비</b><p>자작 스킬 7종 5,232줄 · 서브에이전트 분업 · 스펙/플랜 문서 선행 · 규칙의 코드 불변식화</p></div>
       </div>
     </div>
 
@@ -612,7 +740,7 @@
       스키마·인증·배포 절차도 그대로 옮겨 갔습니다. 그래서 뒤로 갈수록 만드는 데 걸리는 시간이 줄었습니다.</p>
     <div class="gantt">
       <div class="gmonths"><span>PROJECT</span><span>5월</span><span>6월</span><span>7월</span><span>8월</span><span>9월</span></div>
-      <div class="grow edu"><b>국비 과정</b><div class="gtrack"><i class="edu" style="left:0%;width:59.9%"></i><em style="left:calc(59.9% + 10px)">◀ 2026.02 개강 · 07 수료</em></div></div>
+      <div class="grow edu"><b>국비 과정</b><div class="gtrack"><i class="edu" style="left:0%;width:59.9%"></i><em style="left:calc(59.9% + 10px)">◀ 코리아IT아카데미 · 2026.02 개강 · 07 수료</em></div></div>
       <div class="grow"><b>SevMerge</b><div class="gtrack"><i class="team" style="left:0.0%;width:39.5%"></i><em style="left:calc(39.5% + 10px)">팀 · 내 커밋 115</em></div></div>
       <div class="grow"><b>탁카</b><div class="gtrack"><i class="" style="left:28.9%;width:21.7%"></i><em style="left:calc(50.7% + 10px)">116 commits</em></div></div>
       <div class="grow"><b>손안의여름</b><div class="gtrack"><i class="" style="left:45.4%;width:23.7%"></i><em style="left:calc(69.1% + 10px)">162 commits</em></div></div>
@@ -776,6 +904,26 @@ track.innerHTML=P.map((p,i)=>`
     <div class="cardfoot">${p.link?`<a class="go" href="${p.link}" target="_blank" rel="noopener">열어보기 ↗</a>`:""}</div>
     <button class="more" data-open="${i}">자세히 보기</button>
   </article>`).join("");
+
+/* ─────────── 20초 요약: 목록 생성 + 궤도로 점프 ───────────
+   목록도 "여기부터 보세요"도 같은 P를 쓴다. 카드가 늘면 여기도 저절로 따라온다. */
+(function(){
+  const list=document.getElementById("ovlist"), cnt=document.getElementById("ovcount");
+  if(!list) return;
+  cnt.textContent=String(P.length).padStart(2,"0");
+  list.innerHTML=P.map((p,i)=>
+    `<li><button type="button" data-jump="${i}"><s>${String(i+1).padStart(2,"0")}</s>`+
+    `<i>${p.n}</i><em class="${p.st==="운영 중"?"live":""}">${p.st}</em></button></li>`).join("");
+
+  /* 궤도는 스크롤 위치가 곧 인덱스다. 카드로 가려면 그 지점까지 스크롤하면 된다. */
+  document.addEventListener("click",e=>{
+    const b=e.target.closest("[data-jump]"); if(!b) return;
+    const pin=document.getElementById("pin"); if(!pin) return;
+    const i=+b.dataset.jump, span=pin.offsetHeight-innerHeight;
+    const n=Math.max(1,P.length-1);
+    scrollTo({top:pin.offsetTop+(i/n)*span, behavior:"smooth"});
+  });
+})();
 
 /* ─────────── 궤도 진입 자격 ───────────
    모바일과 reduced-motion은 three를 아예 내려받지 않는다. 이탈 위험이 가장 큰 구간이라

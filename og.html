@@ -1,0 +1,90 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<style>
+:root{--ink:#06070F;--wine:#8C1E52;--gold:#D8CFA6;--gold-hi:#F3EFDD;--white:#EEF1F8;--steel:#8C93B0;
+  --f-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  --f-sans:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+*{box-sizing:border-box;margin:0}
+body{width:1200px;height:630px;overflow:hidden;background:var(--ink);color:var(--white);
+  font-family:var(--f-sans);word-break:keep-all;position:relative}
+#bg{position:absolute;inset:0;width:1200px;height:630px}
+.grain{position:absolute;inset:0;opacity:.10;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+.vig{position:absolute;inset:0;background:radial-gradient(120% 90% at 42% 34%,transparent 34%,rgba(2,3,9,.86) 100%)}
+.wrap{position:absolute;inset:0;padding:58px 66px;display:flex;flex-direction:column;justify-content:space-between}
+.top{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-mono);
+  font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--steel)}
+.top b{color:var(--white);font-weight:500}
+h1{font-weight:800;letter-spacing:-.055em;line-height:1.0;font-size:96px}
+h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1.8px #8C1E52}
+h1 b{font-weight:800;background:linear-gradient(96deg,#7C8099 4%,var(--gold) 34%,var(--gold-hi) 68%,#FBF9F0 98%);
+  -webkit-background-clip:text;color:transparent}
+.sub{margin-top:22px;max-width:47ch;color:#B9C0D6;font-size:19px;line-height:1.6}
+.sub s{text-decoration:none;color:var(--gold)}
+.met{display:flex;gap:52px;font-family:var(--f-mono);align-items:flex-end}
+.met div{display:flex;flex-direction:column;gap:5px}
+.met b{font-size:40px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+.met span{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--steel)}
+.met .mail{margin-left:auto;font-size:13px;letter-spacing:.1em;color:var(--gold-hi)}
+.rule{height:1px;background:linear-gradient(90deg,rgba(216,207,166,.55),rgba(216,207,166,0) 72%);margin-bottom:26px}
+</style></head><body>
+<canvas id="bg" width="1200" height="630"></canvas>
+<div class="grain"></div><div class="vig"></div>
+<div class="wrap">
+  <div class="top"><span><b>박효균</b> — Product Engineer</span><span>AI-assisted solo · BUSAN · 2026</span></div>
+  <div>
+    <h1>열여섯 개를<br><em>만든 게</em> 아니라 <b>내보냈다</b></h1>
+    <p class="sub">생성형 AI 활용 개발자 양성과정을 마치고, 그 뒤 넉 달 동안 혼자 열여섯 개를 기획·구현·심사·배포했습니다. <s>여덟 개는 지금 운영 중입니다.</s></p>
+  </div>
+  <div>
+    <div class="rule"></div>
+    <div class="met">
+      <div><b>16</b><span>Shipped</span></div>
+      <div><b>8</b><span>Live now</span></div>
+      <div><b>1,240</b><span>Tests green</span></div>
+      <div><b>7</b><span>AI skills built</span></div>
+      <span class="mail">qkrgyrbs12@gmail.com</span>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const c=document.getElementById("bg");
+  const gl=c.getContext("webgl",{antialias:false,alpha:false});
+  if(!gl){document.body.style.background="radial-gradient(60% 60% at 45% 38%,#221240,#06070F)";window.__ready=1;return;}
+  const vs=`attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`;
+  const fs=`precision highp float;uniform vec2 r;uniform float t;uniform vec2 m;
+  float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+  float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+    return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+  float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p*=2.03;a*=.5;}return v;}
+  void main(){
+    vec2 uv=(gl_FragCoord.xy-.5*r)/r.y;
+    vec2 q=uv*1.35;
+    float flow=fbm(q*1.6+vec2(0.,-t*.055)+fbm(q*2.2+t*.03));
+    float d=length(uv-m*.5);
+    float glow=smoothstep(1.05,.05,d)*.5+flow*.5;
+    glow=pow(glow,2.6);
+    vec3 col=mix(vec3(.015,.019,.046),vec3(.036,.027,.080),flow);
+    col+=vec3(.46,.13,.42)*glow*.78;
+    col+=vec3(.80,.78,.66)*pow(glow,3.6)*.85;
+    float sheen=pow(flow,3.0);
+    col+=vec3(.52,.53,.62)*sheen*.28;
+    float sp=step(.99885,h(floor(gl_FragCoord.xy*.5)+floor(t*4.)));
+    col+=vec3(.90,.94,1.)*sp*.52*smoothstep(1.2,.1,d);
+    col*=1.-.30*length(uv)*.72;
+    gl_FragColor=vec4(col,1.);
+  }`;
+  function sh(t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);return x;}
+  const pr=gl.createProgram();
+  gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));
+  gl.linkProgram(pr);gl.useProgram(pr);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const loc=gl.getAttribLocation(pr,"p");gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  gl.viewport(0,0,c.width,c.height);
+  gl.uniform2f(gl.getUniformLocation(pr,"r"),c.width,c.height);
+  gl.uniform1f(gl.getUniformLocation(pr,"t"),7.4);
+  gl.uniform2f(gl.getUniformLocation(pr,"m"),0.42,0.30);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+  window.__ready=1;
+})();
+</script></body></html>
