@@ -139,134 +139,47 @@
   }
   @media (max-width:640px){ body{cursor:auto} #cur,#ring{display:none} }
 
-  /* 인트로 커튼 */
-  /* ── 발사 게이트 ──
-     그냥 열리지 않는다. 눌러서 추력을 채워야 열린다.
-     히어로의 등장 애니메이션은 발사 전까지 멈춰 있다가 여기서 풀린다. */
-  /* 게이트만 차가운 HUD 팔레트를 쓴다. 발사하면 본문의 와인·골드로 넘어가면서
-     기계에서 사람 쪽으로 온도가 바뀐다. */
-  #gate{--h:#7FE9FF;--h2:#2FA8CC;--hd:#12384A;
-    position:fixed;inset:0;z-index:85;display:grid;place-items:center;
-    background:radial-gradient(120% 90% at 50% 45%,rgba(5,12,20,.955),rgba(2,6,12,.995) 70%);
-    backdrop-filter:blur(7px) saturate(.55);transition:opacity .7s cubic-bezier(.7,0,.2,1),transform .7s cubic-bezier(.7,0,.2,1)}
-  body.launched{overflow:visible}
-  body.sealed{overflow:hidden}
-  #gate.off{opacity:0;transform:translateY(-9%) scale(1.05);pointer-events:none;visibility:hidden}
-  .gwrap{display:flex;flex-direction:column;align-items:center;gap:clamp(18px,3vh,34px);
-    padding:clamp(20px,4vh,44px) clamp(18px,4vw,44px);text-align:center}
-  .gtop{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;
-    color:rgba(127,233,255,.42);display:flex;gap:clamp(14px,3vw,34px);flex-wrap:wrap;justify-content:center}
-  .gtop b{color:var(--h);font-weight:400}
+  /* ── 인트로 표지 ──
+     관문이 아니라 표지다. 입력을 요구하지 않고 스크롤도 막지 않는다.
+     2.4초 동안 재생되고 아무 입력이나 들어오면 즉시 끝난다.
+     화면에 뜨는 값은 전부 이 페이지의 간트·히어로에서 런타임에 읽어 온다. */
+  #boot{position:fixed;inset:0;z-index:85;display:grid;place-items:center;
+    background:radial-gradient(120% 90% at 50% 45%,rgba(5,6,14,.97),rgba(3,4,10,1) 72%);
+    transition:opacity .5s ease,visibility .5s}
+  #boot.off{opacity:0;visibility:hidden;pointer-events:none}
+  .bwrap{width:min(760px,86vw);display:flex;flex-direction:column;gap:clamp(24px,4vh,44px)}
+  .btop{margin:0;font-family:var(--f-mono);font-size:11px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--steel-d)}
+  .btop b{color:var(--steel);font-weight:400}
 
-  /* 점화 링 — 누르는 동안 게이지가 찬다.
-     --g 는 0~1 충전량. JS 가 매 프레임 넣어 주고 발광·회전·불투명도가 따라 붙는다. */
-  #ign{--g:0;position:relative;width:clamp(200px,34vh,290px);height:clamp(200px,34vh,290px);
-    border:0;background:none;padding:0;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent}
-  #ign svg{width:100%;height:100%;transform:rotate(-90deg);display:block;overflow:visible}
-  #ign .trk{fill:none;stroke:rgba(127,233,255,.13);stroke-width:1.2}
-  #ign .arc{fill:none;stroke:var(--h);stroke-width:2.2;stroke-linecap:round;
-    filter:drop-shadow(0 0 calc(3px + 15px*var(--g)) rgba(127,233,255,calc(.4 + .5*var(--g))))}
+  .baxis{position:relative;padding-top:46px}
+  .bline{position:relative;height:1px;background:#1E2338}
+  .bline i{position:absolute;top:-1px;left:0;height:3px;width:0;
+    background:linear-gradient(90deg,rgba(216,207,166,0),var(--gold));
+    box-shadow:0 0 12px rgba(216,207,166,.5)}
+  .bdots{position:absolute;left:0;right:0;top:46px;height:1px}
+  .bdot{position:absolute;top:-3px;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;
+    background:#141A2C;border:1px solid #2A3050;transition:background .2s,border-color .2s,transform .2s}
+  .bdot.on{background:var(--gold);border-color:var(--gold);transform:scale(1.25);
+    box-shadow:0 0 9px rgba(216,207,166,.6)}
+  .bmonths{display:flex;justify-content:space-between;margin-top:12px;
+    font-family:var(--f-mono);font-size:10px;letter-spacing:.18em;color:var(--steel-d)}
+  .bedu{position:absolute;top:6px;left:0;font-family:var(--f-mono);font-size:10px;
+    letter-spacing:.14em;color:var(--steel-d)}
+  .blabel{margin:16px 0 0;height:1.6em;font-family:var(--f-mono);font-size:13px;
+    letter-spacing:.06em;color:var(--gold-hi)}
+  .blabel s{text-decoration:none;color:var(--steel-d);margin-right:10px}
 
-  /* 바깥 판. 레퍼런스의 두꺼운 분절 링 — 점선 굵기로 판을 만든다 */
-  #ign .plate{fill:none;stroke:rgba(127,233,255,calc(.16 + .3*var(--g)));stroke-width:6;
-    stroke-dasharray:11 4.7}
-  #ign .plate2{fill:none;stroke:rgba(127,233,255,calc(.10 + .22*var(--g)));stroke-width:2.4;
-    stroke-dasharray:3.2 6.5}
-  /* 눈금 (r47 둘레 295.3 → 60·12 분할) */
-  #ign .tk1{fill:none;stroke:rgba(127,233,255,.20);stroke-width:3.6;stroke-dasharray:.5 4.42}
-  #ign .tk2{fill:none;stroke:rgba(127,233,255,calc(.30 + .4*var(--g)));stroke-width:6;stroke-dasharray:1 23.6}
-  /* 분절 링 — 서로 반대로 돈다 */
-  #ign .seg{fill:none;stroke:var(--h);stroke-width:1;opacity:calc(.16 + .5*var(--g))}
-  #ign .segA{stroke-dasharray:30 13 7 13 30 13 7 13;animation:gspin 24s linear infinite}
-  #ign .segB{stroke-dasharray:16 10;animation:gspin 15s linear infinite reverse}
-  @keyframes gspin{to{transform:rotate(360deg)}}
-  #ign .swp{animation:gspin 4.6s linear infinite;opacity:calc(.25 + .55*var(--g))}
-  #ign .swp line{stroke-width:1.6;stroke-linecap:round}
-  #ign .hair{stroke:rgba(127,233,255,.30);stroke-width:1}
-  #ign .brk{fill:none;stroke:rgba(127,233,255,calc(.18 + .34*var(--g)));stroke-width:1.1}
-
-  /* 육각 격자 — 충전이 차오를수록 안쪽부터 하나씩 점등된다 */
-  /* 바깥 큰 육각 — 흩어진 조각에 뼈대를 준다 */
-  #ign .hxout{fill:none;stroke:rgba(127,233,255,calc(.10 + .22*var(--g)));stroke-width:.5}
-  #ign .hx{fill:none;stroke:rgba(127,233,255,.13);stroke-width:.55;
-    transition:stroke .25s,filter .25s}
-  #ign .hx.on{stroke:rgba(127,233,255,.85);stroke-width:.7;
-    filter:drop-shadow(0 0 3px rgba(127,233,255,.75))}
-  #ign .pt{fill:rgba(127,233,255,calc(.18 + .5*var(--g)))}
-  #ign .nd{fill:rgba(127,233,255,.30);transition:fill .25s}
-  #ign .nd.on{fill:var(--h);filter:drop-shadow(0 0 2.5px rgba(127,233,255,.8))}
-
-  /* 코어 별빛 — 6방향 스파이크가 충전량만큼 뻗는다 */
-  /* 광선은 끝이 뾰족한 삼각형이라 선이 아니라 별빛으로 읽힌다 */
-  #ign .spike{transform-origin:50px 50px;transform:scale(calc(.22 + .9*var(--g)));
-    opacity:calc(.3 + .7*var(--g));
-    filter:drop-shadow(0 0 calc(2px + 11px*var(--g)) rgba(127,233,255,.85))}
-  #ign .ry{fill:#EAFDFF}
-  #ign .cdot{fill:#F2FEFF;r:calc(1.1px + 2.6px*var(--g));
-    filter:drop-shadow(0 0 calc(4px + 26px*var(--g)) rgba(127,233,255,calc(.55 + .45*var(--g))))}
-
-  /* SVG 요소의 transform-box 기본값이 브라우저마다 달라 회전축이 어긋난다.
-     회전·변형하는 요소에는 전부 view-box 를 명시한다. */
-  #ign .seg,#ign .swp,#ign .spike{transform-box:view-box;transform-origin:50px 50px}
-
-  /* 발사 직전 — 링 전체가 한 번 부푼다 */
-  body.armed #ign{animation:garm .3s ease-out infinite alternate}
-  @keyframes garm{to{transform:scale(1.03)}}
-
-  /* 좌우로 뻗는 회로 트레이스 */
-  .gtrace{position:absolute;top:50%;translate:0 -50%;width:min(30vw,340px);height:190px;
-    pointer-events:none;opacity:calc(.5 + .5*var(--tg,0))}
-  .gtrace.l{right:calc(50% + clamp(108px,18vh,158px))}
-  .gtrace.r{left:calc(50% + clamp(108px,18vh,158px));scale:-1 1}
-  .gtrace path{fill:none;stroke:rgba(127,233,255,.30);stroke-width:1}
-  .gtrace path.flow{stroke:var(--h);stroke-width:1.2;stroke-dasharray:5 150;
-    animation:gflow 3.4s linear infinite}
-  @keyframes gflow{to{stroke-dashoffset:-155}}
-  .gtrace rect{fill:none;stroke:rgba(127,233,255,.42);stroke-width:1}
-  @media (max-width:900px){ .gtrace{display:none} }
-
-  /* 수치는 링 밖에 둔다. 코어 위에 글자를 얹으면 둘 다 죽는다. */
-  .gnum{margin:0;pointer-events:none;display:flex;align-items:baseline;justify-content:center;
-    gap:14px;font-family:var(--f-mono)}
-  .gnum i{font-style:normal;font-size:clamp(19px,2.9vh,26px);letter-spacing:.16em;
-    color:#EAFCFF;font-variant-numeric:tabular-nums;
-    text-shadow:0 0 calc(4px + 16px*var(--tg,0)) rgba(127,233,255,.7)}
-  .gnum small{font-size:10.5px;letter-spacing:.28em;color:var(--h);
-    opacity:calc(.45 + .55*var(--tg,0));text-transform:uppercase}
-  body.armed .gnum i{color:#fff}
-  #ign:focus-visible{outline:1px dashed rgba(216,207,166,.45);outline-offset:12px;border-radius:50%}
-
-  .ghint{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;color:var(--steel);line-height:2}
-  .ghint b{color:var(--gold-hi);font-weight:400}
-  .gcheck{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;
-    font-family:var(--f-mono);font-size:10.5px;letter-spacing:.1em;color:var(--steel-d);min-width:min(340px,84vw)}
-  .gcheck li{display:flex;justify-content:space-between;gap:14px;transition:color .3s}
-  .gcheck li em{font-style:normal;color:#2A3050;transition:color .3s}
-  .gcheck li.on{color:var(--steel)}
-  .gcheck li.on em{color:#7FCBA4}
-  /* HUD 프레임 — 스캔라인과 코너 브래킷 */
-  .gscan{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-  .gscan::before{content:"";position:absolute;left:0;right:0;height:1px;
-    background:linear-gradient(90deg,transparent,rgba(216,207,166,.20) 22%,rgba(216,207,166,.20) 78%,transparent);
-    animation:gscan 6s linear infinite}
-  @keyframes gscan{0%{top:-1%}100%{top:101%}}
-  .gbrk{position:absolute;inset:clamp(14px,3.4vh,30px);pointer-events:none}
-  .gbrk i{position:absolute;width:clamp(18px,2.4vw,30px);height:clamp(18px,2.4vw,30px);
-    border:1px solid rgba(216,207,166,.18)}
-  .gbrk i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0}
-  .gbrk i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}
-  .gbrk i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}
-  .gbrk i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
-  .gskip{position:fixed;right:clamp(14px,3vw,26px);bottom:clamp(14px,3vh,22px);
+  .bnums{display:flex;gap:clamp(20px,5vw,54px);flex-wrap:wrap}
+  .bnums div{display:flex;flex-direction:column;gap:6px;font-family:var(--f-mono)}
+  .bnums b{font-size:clamp(24px,3.4vh,34px);font-weight:600;letter-spacing:-.02em;
+    color:var(--white);font-variant-numeric:tabular-nums;line-height:1}
+  .bnums span{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--steel-d)}
+  .bskip{position:fixed;right:clamp(14px,3vw,26px);bottom:clamp(14px,3vh,22px);
     font-family:var(--f-mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
     color:var(--steel-d);background:none;border:0;cursor:pointer;padding:8px}
-  .gskip:hover{color:var(--gold)}
-  @keyframes shake{0%,100%{transform:none}20%{transform:translate(2px,-3px)}
-    40%{transform:translate(-3px,2px)}60%{transform:translate(3px,2px)}80%{transform:translate(-2px,-2px)}}
-  body.liftoff main{animation:shake .5s ease-out}
-  #flash{position:fixed;inset:0;z-index:86;background:var(--gold-hi);opacity:0;pointer-events:none}
-  body.liftoff #flash{animation:fl .55s ease-out forwards}
-  @keyframes fl{0%{opacity:0}12%{opacity:.42}100%{opacity:0}}
+  .bskip:hover{color:var(--gold)}
+  @media (prefers-reduced-motion:reduce){ #boot{display:none} }
 
   /* 발사 전에는 히어로가 멈춰 있다 */
   .kine .ln i,.sub,.metrics{animation-play-state:paused}
@@ -276,7 +189,7 @@
   .kine .ln:nth-child(3) i{animation-delay:.42s}
   .sub{animation-delay:.72s}
   .metrics{animation-delay:.88s}
-  @media (prefers-reduced-motion:reduce){ #gate{display:none} body.sealed{overflow:visible}
+  @media (prefers-reduced-motion:reduce){
     .kine .ln i,.sub,.metrics{animation-play-state:running} }
 
   /* 골드 스윕 */
@@ -593,75 +506,19 @@
 <div id="ring"></div>
 <div id="cur"></div>
 <div id="flash"></div>
-<div id="gate" role="dialog" aria-modal="true" aria-label="발사 게이트">
-  <div class="gwrap">
-    <div class="gtop"><span>Mission <b>2026</b></span><span>Crew <b>1</b></span><span>Payload <b>16</b></span><span>Live <b>12</b></span><span>Range <b>BUSAN</b></span></div>
-    <button id="ign" type="button" aria-label="누르고 있으면 발사합니다">
-      <svg viewBox="0 0 100 100" aria-hidden="true">
-        <defs>
-          <linearGradient id="gsw" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stop-color="rgba(127,233,255,0)"></stop>
-            <stop offset="1" stop-color="rgba(127,233,255,.95)"></stop>
-          </linearGradient>
-        </defs>
-        <circle class="plate"  cx="50" cy="50" r="47.5"></circle>
-        <circle class="plate2" cx="50" cy="50" r="43.4"></circle>
-        <circle class="tk1" cx="50" cy="50" r="47"></circle>
-        <circle class="tk2" cx="50" cy="50" r="47"></circle>
-        <circle class="seg segA" cx="50" cy="50" r="39.4"></circle>
-        <circle class="seg segB" cx="50" cy="50" r="35.4"></circle>
-        <!-- 육각 격자와 노드는 JS 가 채운다 (19칸) -->
-        <g id="hexes"></g>
-        <g id="nodes"></g>
-        <g class="spike" id="spikes"></g>
-        <circle class="cdot" cx="50" cy="50" r="1.4"></circle>
-        <circle class="trk" cx="50" cy="50" r="42"></circle>
-        <circle class="arc" id="arc" cx="50" cy="50" r="42"
-          stroke-dasharray="263.9" stroke-dashoffset="263.9"></circle>
-        <g class="swp"><line x1="50" y1="50" x2="50" y2="9" stroke="url(#gsw)"></line></g>
-        <line class="hair" x1="50" y1="1" x2="50" y2="5"></line>
-        <line class="hair" x1="50" y1="95" x2="50" y2="99"></line>
-        <line class="hair" x1="1" y1="50" x2="5" y2="50"></line>
-        <line class="hair" x1="95" y1="50" x2="99" y2="50"></line>
-        <path class="brk" d="M4 20V4h16M96 20V4H80M4 80v16h16M96 80v16H80"></path>
-      </svg>
-    </button>
-    <p class="gnum"><i id="gpct">HOLD</i><small id="glab">점화</small></p>
-    <p class="ghint">누르고 있으면 열립니다<br><b>클릭 · 스페이스바 · 휠 아래로</b></p>
-    <ul class="gcheck" id="gcheck">
-      <li data-at="20"><span>SYSTEMS · 1,240 TESTS</span><em>GREEN</em></li>
-      <li data-at="45"><span>PAYLOAD · 16 PRODUCTS</span><em>SECURED</em></li>
-      <li data-at="70"><span>AI SKILLS · 7 BUILT</span><em>ARMED</em></li>
-      <li data-at="96"><span>RANGE</span><em>GO</em></li>
-    </ul>
+<div id="boot">
+  <div class="bwrap">
+    <p class="btop">2026 · 기획 · 구현 · 심사 · <b>배포까지 혼자</b></p>
+    <div class="baxis">
+      <span class="bedu" id="bedu"></span>
+      <div class="bline"><i id="bhead"></i></div>
+      <div class="bdots" id="bdots"></div>
+      <div class="bmonths"><span>5월</span><span>6월</span><span>7월</span><span>8월</span><span>9월</span></div>
+      <p class="blabel" id="blabel">&nbsp;</p>
+    </div>
+    <div class="bnums" id="bnums"></div>
   </div>
-  <svg class="gtrace l" viewBox="0 0 340 190" aria-hidden="true">
-    <path d="M340 95H262l-16-16H150l-14 14H36"></path>
-    <path d="M340 95H262l-16 16H162l-13 13H52"></path>
-    <path d="M262 79V49l-18-18H108"></path>
-    <path d="M262 111v34l-20 20H120"></path>
-    <path class="flow" d="M340 95H262l-16-16H150l-14 14H36"></path>
-    <path class="flow" d="M262 111v34l-20 20H120" style="animation-delay:-1.7s"></path>
-    <rect x="32" y="91" width="8" height="8"></rect>
-    <rect x="48" y="120" width="8" height="8"></rect>
-    <rect x="104" y="27" width="8" height="8"></rect>
-    <rect x="116" y="161" width="8" height="8"></rect>
-  </svg>
-  <svg class="gtrace r" viewBox="0 0 340 190" aria-hidden="true">
-    <path d="M340 95H262l-16-16H150l-14 14H36"></path>
-    <path d="M340 95H262l-16 16H162l-13 13H52"></path>
-    <path d="M262 79V49l-18-18H108"></path>
-    <path d="M262 111v34l-20 20H120"></path>
-    <path class="flow" d="M340 95H262l-16 16H162l-13 13H52" style="animation-delay:-.9s"></path>
-    <path class="flow" d="M262 79V49l-18-18H108" style="animation-delay:-2.4s"></path>
-    <rect x="32" y="91" width="8" height="8"></rect>
-    <rect x="48" y="120" width="8" height="8"></rect>
-    <rect x="104" y="27" width="8" height="8"></rect>
-    <rect x="116" y="161" width="8" height="8"></rect>
-  </svg>
-  <div class="gscan" aria-hidden="true"></div>
-  <div class="gbrk" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-  <button class="gskip" id="gskip" type="button">건너뛰기 →</button>
+  <button class="bskip" id="bskip" type="button">건너뛰기 →</button>
 </div>
 <div class="prog"><i id="progbar"></i></div>
 <div class="hint"><b>⌘K</b> 프로젝트 · <b>J/K</b> 이동</div>
@@ -975,151 +832,85 @@
 
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ─────────── 발사 게이트 ───────────
-   저절로 열리는 인트로는 그냥 로딩 화면이다. 여기서는 누르고 있어야 열린다.
-   누르는 동안 추력이 차고, 다 차면 카운트다운 뒤 발사된다.
-   실패해도 페이지는 남는다 — 어떤 이유로든 스크립트가 죽으면 5초 뒤 저절로 열린다. */
+/* ─────────── 인트로 표지 ───────────
+   저절로 열리지 않는 관문은 리뷰어에게 통행료를 물린다. 여기서는 아무것도
+   요구하지 않고 2.4초 동안 다섯 달치 이력을 훑어 준 뒤 비켜선다.
+   화면에 뜨는 값은 전부 이 페이지 안에서 읽어 온다 — 인트로용으로 따로
+   적어 둔 숫자가 없으므로 본문과 어긋날 수 없다.
+   실패해도 페이지는 남는다 — 스크립트가 죽으면 4초 뒤 저절로 걷힌다. */
 (function(){
-  const gate=document.getElementById("gate");
-  if(!gate) return;
-  const btn=document.getElementById("ign"), arc=document.getElementById("arc"),
-        pct=document.getElementById("gpct"), lab=document.getElementById("glab"),
-        rows=[...document.querySelectorAll("#gcheck li")], skip=document.getElementById("gskip");
-  const LEN=263.9;
+  const boot=document.getElementById("boot");
+  if(!boot) return;
+  const head=document.getElementById("bhead"), dots=document.getElementById("bdots"),
+        label=document.getElementById("blabel"), nums=document.getElementById("bnums"),
+        edu=document.getElementById("bedu"), skip=document.getElementById("bskip");
 
-  /* 중앙부를 만든다.
-     균일한 벌집 타일은 납작해 보인다 — 레퍼런스처럼 크기가 제각각인 육각이
-     흩어지고, 가운데 섬광이 주인공이 되게 한다. */
-  const NS="http://www.w3.org/2000/svg";
-  const el=(t,a)=>{const e=document.createElementNS(NS,t);
-    for(const k in a) e.setAttribute(k,a[k]); return e;};
-  const hexPts=(cx,cy,r)=>{const o=[];
-    for(let k=0;k<6;k++){const a=Math.PI/180*(60*k+30);
-      o.push((cx+r*Math.cos(a)).toFixed(2)+","+(cy+r*Math.sin(a)).toFixed(2));}
-    return o.join(" ");};
-
-  const hexG=document.getElementById("hexes"), ndG=document.getElementById("nodes"),
-        spG=document.getElementById("spikes");
-  const SQ3=Math.sqrt(3), STEP=4.6;
-  /* 축좌표 + 칸마다 다른 배율. 0 이면 그리지 않는다 — 빈자리가 있어야 흩어져 보인다. */
-  const PLAN=[
-    [ 0, 0,  0  ],
-    [ 1, 0, 1.00],[ 0, 1, .80],[-1, 1, 1.00],[-1, 0, .80],[ 0,-1, 1.00],[ 1,-1, .80],
-    [ 2, 0, .66],[ 1, 1, .92],[ 0, 2, 0   ],[-1, 2, .60],[-2, 2, .88],[-2, 1, .66],
-    [-2, 0, 0   ],[-1,-1, .92],[ 0,-2, .60],[ 1,-2, .88],[ 2,-2, 0   ],[ 2,-1, .66]
-  ];
-  const hexEls=[], ndEls=[];
-  /* 바깥을 감싸는 큰 육각 하나 — 흩어진 조각에 뼈대를 준다 */
-  hexG.appendChild(el("polygon",{points:hexPts(50,50,20.5),class:"hxout"}));
-  /* 뾰족머리 육각의 축좌표 → 화면좌표. x=size*√3*(q+r/2), y=size*1.5*r */
-  const built=[];
-  PLAN.forEach(([q,r,f])=>{
-    if(!f) return;
-    built.push({ x:50+STEP*SQ3*(q+r/2), y:50+STEP*1.5*r, f,
-                 d:Math.max(Math.abs(q),Math.abs(r),Math.abs(q+r)) });
-  });
-  built.sort((a,b)=>(a.d-b.d)||(a.x-b.x));
-  built.forEach(c=>{
-    const h=el("polygon",{points:hexPts(c.x,c.y,STEP*c.f*.92),class:"hx"});
-    hexG.appendChild(h); hexEls.push(h);
-    const n=el("circle",{cx:c.x.toFixed(2),cy:c.y.toFixed(2),r:(.55+.45*c.f).toFixed(2),class:"nd"});
-    ndG.appendChild(n); ndEls.push(n);
-  });
-  /* 흩뿌린 입자 */
-  [[38,36],[62,34],[68,58],[33,60],[50,28],[50,72],[28,47],[72,48],[41,66],[59,66]]
-    .forEach(([x,y])=>ndG.appendChild(el("circle",{cx:x,cy:y,r:.42,class:"pt"})));
-
-  /* 코어 섬광 — 끝이 뾰족한 삼각형 광선이라야 별빛으로 읽힌다 */
-  const ray=(deg,len,half)=>{
-    const a=Math.PI/180*deg, px=-Math.sin(a)*half, py=Math.cos(a)*half;
-    return el("polygon",{class:"ry",points:
-      [(50+px).toFixed(2)+","+(50+py).toFixed(2),
-       (50-px).toFixed(2)+","+(50-py).toFixed(2),
-       (50+len*Math.cos(a)).toFixed(2)+","+(50+len*Math.sin(a)).toFixed(2)].join(" ")});
-  };
-  [0,90,180,270].forEach(d=>spG.appendChild(ray(d,23,1.15)));
-  [45,135,225,315].forEach(d=>spG.appendChild(ray(d,13,.8)));
-  for(let k=0;k<12;k++){ const d=22.5+30*k; if(d%45===0) continue;
-    spG.appendChild(ray(d,8,.45)); }
-
-  function lattice(v){
-    const lit=Math.round(v*hexEls.length);
-    hexEls.forEach((h,i)=>h.classList.toggle("on", i<lit));
-    ndEls.forEach((n,i)=>n.classList.toggle("on", i<lit));
-  }
-
-  let v=0, holding=false, done=false, raf=0, coast=0;
-  const CHARGE=0.82, DRAIN=1.0;   // 초당 채워지는·빠지는 비율
-
-  if(RM){ open(true); return; }
-  document.body.classList.add("sealed");
-
-  function paint(){
-    arc.style.strokeDashoffset=String(LEN*(1-v));
-    btn.style.setProperty("--g", v.toFixed(3));
-    gate.style.setProperty("--tg", v.toFixed(3));
-    lattice(v);
-    const p=Math.round(v*100);
-    pct.textContent = v>0 ? String(p).padStart(2,"0")+"%" : "HOLD";
-    lab.textContent = v>0 ? (v<1?"충전":"점화") : "점화";
-    document.body.classList.toggle("armed", v>=.92);
-    for(const r of rows) r.classList.toggle("on", p>=+r.dataset.at);
-  }
-
-  let last=performance.now();
-  function loop(now){
-    const dt=Math.min(0.05,(now-last)/1000); last=now;
-    if(holding) v += CHARGE*dt;
-    else if(coast>0){ coast-=dt; }          /* 휠로 밀어 넣은 직후에는 빠지지 않는다 */
-    else v -= DRAIN*dt;
-    v=Math.max(0,Math.min(1,v));
-    paint();
-    if(v>=1 && !done){ done=true; countdown(); return; }
-    raf=requestAnimationFrame(loop);
-  }
-  raf=requestAnimationFrame(loop);
-
-  function countdown(){
-    document.body.classList.remove("charging","armed");
-    btn.style.setProperty("--g","1");
-    let n=3;
-    lab.textContent="발사까지";
-    (function step(){
-      pct.textContent="T-"+n;
-      if(n--<=0){ pct.textContent="LIFTOFF"; lab.textContent=""; setTimeout(()=>open(false),260); return; }
-      setTimeout(step,300);
-    })();
-  }
-
-  function open(instant){
-    document.body.classList.remove("sealed","charging","armed");
+  let t0=0, raf=0, lit=-1;
+  const finish=()=>{
+    if(boot.dataset.done) return;
+    boot.dataset.done="1";
+    boot.classList.add("off");
     document.body.classList.add("launched");
-    if(!instant) document.body.classList.add("liftoff");
-    gate.classList.add("off");
     cancelAnimationFrame(raf);
-    setTimeout(()=>{ gate.remove(); document.body.classList.remove("liftoff"); }, instant?0:900);
-    dispatchEvent(new Event("launched"));
-  }
+    setTimeout(()=>boot.remove(),600);
+  };
+  if(RM){ finish(); return; }
 
-  const down=e=>{ if(done) return; holding=true; document.body.classList.add("charging");
-                  if(e.cancelable) e.preventDefault(); };
-  const up=()=>{ holding=false; document.body.classList.remove("charging"); };
-  btn.addEventListener("pointerdown",down);
-  addEventListener("pointerup",up); addEventListener("pointercancel",up);
-  btn.addEventListener("keydown",e=>{ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); down(e); }});
-  btn.addEventListener("keyup",e=>{ if(e.key===" "||e.key==="Enter") up(); });
-  /* 휠을 내려도 차오른다 — 스크롤하려던 사람의 손짓을 그대로 받는다 */
-  gate.addEventListener("wheel",e=>{ e.preventDefault();
-    if(done||e.deltaY<=0) return;
-    v=Math.min(1,v+Math.min(0.10,e.deltaY/1300));
-    coast=0.9;                               /* 다음 휠까지 붙잡아 둔다 */
-    if(v>=1&&!done){ done=true; countdown(); }
-  },{passive:false});
-  gate.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});
-  skip.addEventListener("click",()=>{ if(!done){ done=true; open(true); } });
-  addEventListener("keydown",e=>{ if(e.key==="Escape"&&!done){ done=true; open(true); }});
-  setTimeout(()=>{ if(!done){ done=true; open(true); } }, 60000);
-  btn.focus({preventScroll:true});
+  /* 간트 행에서 그대로 읽는다. 축은 5월(0%)~9월(100%). */
+  const rows=[...document.querySelectorAll("#year .grow")].map(r=>{
+    const bar=r.querySelector(".gtrack i");
+    return { n:r.querySelector("b").textContent.trim(),
+             at:parseFloat(bar.style.left)||0,
+             edu:r.classList.contains("edu") };
+  });
+  const shots=rows.filter(r=>!r.edu).sort((a,b)=>a.at-b.at);
+  const eduRow=rows.find(r=>r.edu);
+  if(eduRow) edu.textContent="◀ 2월 국비 개강";
+
+  const dotEls=shots.map(r=>{
+    const d=document.createElement("i");
+    d.className="bdot"; d.style.left=r.at+"%";
+    dots.appendChild(d); return d;
+  });
+
+  /* 카운터도 히어로의 네 숫자를 그대로 쓴다 */
+  const metrics=[...document.querySelectorAll(".hero .metrics div")].map(d=>({
+    v:d.querySelector("b").textContent.trim(), k:d.querySelector("span").textContent.trim()
+  }));
+  nums.innerHTML=metrics.map(m=>`<div><b>0</b><span>${m.k}</span></div>`).join("");
+  const numEls=[...nums.querySelectorAll("b")];
+  const targets=metrics.map(m=>parseInt(m.v.replace(/,/g,""),10)||0);
+
+  const SWEEP=1900, HOLD=420;
+  function frame(now){
+    if(!t0) t0=now;
+    const e=now-t0, p=Math.min(1,e/SWEEP), ease=1-Math.pow(1-p,2.2);
+    head.style.width=(ease*100)+"%";
+    let n=0;
+    dotEls.forEach((d,i)=>{ const on=shots[i].at<=ease*100; d.classList.toggle("on",on); if(on) n++; });
+    if(n!==lit){
+      lit=n;
+      const cur=shots[n-1];
+      if(cur) label.innerHTML=`<s>${String(n).padStart(2,"0")}</s>${cur.n}`;
+      numEls.forEach((el,i)=>{
+        const val=Math.round(targets[i]*(n/shots.length));
+        el.textContent=val.toLocaleString("en-US");
+      });
+    }
+    /* 마지막 발사가 9월 초라 축의 뒤쪽이 비어 있다. 다 켜지면 굳이 더 끌지 않는다. */
+    if(p<1 && lit<shots.length){ raf=requestAnimationFrame(frame); return; }
+    head.style.width="100%";
+    numEls.forEach((el,i)=>el.textContent=targets[i].toLocaleString("en-US"));
+    label.innerHTML=`<s>${String(shots.length).padStart(2,"0")}</s>전부 내보냈습니다`;
+    setTimeout(finish,HOLD);
+  }
+  raf=requestAnimationFrame(frame);
+
+  /* 아무 입력이나 들어오면 바로 비켜선다. 스크롤은 막지 않는다. */
+  ["pointerdown","keydown","wheel","touchstart"].forEach(ev=>
+    addEventListener(ev,finish,{once:true,passive:true}));
+  skip.addEventListener("click",finish);
+  setTimeout(finish,4000);
 })();
 
 /* ─────────── WebGL: 심우주 성운 ─────────── */
