@@ -948,21 +948,45 @@ const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
   float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
     return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
   float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p*=2.03;a*=.5;}return v;}
+  /* 워핑에 쓰는 변위장은 좌표를 밀어내는 용도라 디테일이 필요 없다.
+     여기만 3옥타브로 줄이면 눈에는 차이가 없고 노이즈 호출이 4번 준다. */
+  float fbm3(vec2 p){float v=0.,a=.5;for(int i=0;i<3;i++){v+=a*n(p);p*=2.03;a*=.5;}return v;}
+  /* 정렬 디더(Bayer 8x8). 2x2 패턴을 세 번 접어 만든다 — 행렬 배열이 필요 없다. */
+  float b2(vec2 a){a=floor(a);return fract(a.x*.5+a.y*a.y*.75);}
+  #define b4(a) (b2(.5*(a))*.25+b2(a))
+  #define b8(a) (b4(.5*(a))*.25+b2(a))
   void main(){
     vec2 uv=(gl_FragCoord.xy-.5*r)/r.y;
-    vec2 q=uv*1.35;
-    float flow=fbm(q*1.6+vec2(0.,-t*.055)+fbm(q*2.2+t*.03));
+    vec2 p=uv*1.35;
+    /* 도메인 워핑 — fbm 의 입력을 fbm 으로 두 번 밀어낸다.
+       한 겹일 때는 매끄러운 얼룩이지만, 접을수록 난류 구조가 생긴다. */
+    vec2 q=vec2(fbm3(p+vec2(0.,t*.02)),fbm3(p+vec2(5.2,1.3)));
+    vec2 w=vec2(fbm3(p+2.4*q+vec2(1.7,9.2)-vec2(0.,t*.035)),
+                fbm3(p+2.4*q+vec2(8.3,2.8)));
+    float f=fbm(p+2.6*w);
+    /* 얼마나 밀렸는지를 따로 뽑아 색을 가른다. 화면 전체가 한 색으로 뭉개지지 않는다. */
+    float bend=smoothstep(.28,.86,length(w));
+    /* 능선만 남긴다. 넓게 퍼지는 얼룩 대신 가는 필라멘트가 된다 —
+       배경이 밝아지지 않으면서 구조는 더 또렷해진다. */
+    float fil=pow(1.-abs(f*2.-1.),8.);
     float d=length(uv-m*.5);
-    float glow=smoothstep(1.05,.05,d)*.5+flow*.5;
-    glow=pow(glow,2.6);
-    vec3 col=mix(vec3(.015,.019,.046),vec3(.036,.027,.080),flow);
-    col+=vec3(.46,.13,.42)*glow*.78;
-    col+=vec3(.80,.78,.66)*pow(glow,3.6)*.85;
-    float sheen=pow(flow,3.0);
-    col+=vec3(.52,.53,.62)*sheen*.28;
+    float lamp=smoothstep(.72,0.,d);
+    vec3 col=vec3(.010,.013,.032);
+    col+=vec3(.09,.10,.15)*f*.34;
+    col+=mix(vec3(.28,.05,.17),vec3(.11,.12,.19),bend)*fil*.34;
+    /* 능선의 꼭대기에서만 금색이 뜨게 한다 — 본문 위를 지나는 띠가 되지 않도록. */
+    col+=vec3(.84,.80,.66)*pow(fil,3.4)*lamp*.34;
+    col+=vec3(.50,.53,.66)*pow(f,4.)*.12;
     float sp=step(.99885,h(floor(gl_FragCoord.xy*.5)+floor(t*4.)));
     col+=vec3(.90,.94,1.)*sp*.52*smoothstep(1.2,.1,d);
-    col*=1.-.30*length(uv)*.72;
+    col*=1.-.46*length(uv)*.72;
+    /* 디더 후 계단화. 매끄러운 그라데이션이 눈에 보이는 점 패턴으로 갈라진다.
+       어두운 쪽이 뭉개지지 않도록 감마 공간에서 자른다. */
+    float L=14.;
+    col=sqrt(max(col,0.));
+    col+=(b8(gl_FragCoord.xy/3.)-.5)/L;
+    col=floor(col*L+.5)/L;
+    col*=col;
     gl_FragColor=vec4(col,1.);
   }`;
   function sh(ty,src){const s=gl.createShader(ty);gl.shaderSource(s,src);gl.compileShader(s);return s;}
