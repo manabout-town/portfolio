@@ -186,18 +186,22 @@
   #ign .brk{fill:none;stroke:rgba(127,233,255,calc(.18 + .34*var(--g)));stroke-width:1.1}
 
   /* 육각 격자 — 충전이 차오를수록 안쪽부터 하나씩 점등된다 */
+  /* 바깥 큰 육각 — 흩어진 조각에 뼈대를 준다 */
+  #ign .hxout{fill:none;stroke:rgba(127,233,255,calc(.10 + .22*var(--g)));stroke-width:.5}
   #ign .hx{fill:none;stroke:rgba(127,233,255,.13);stroke-width:.55;
     transition:stroke .25s,filter .25s}
   #ign .hx.on{stroke:rgba(127,233,255,.85);stroke-width:.7;
     filter:drop-shadow(0 0 3px rgba(127,233,255,.75))}
+  #ign .pt{fill:rgba(127,233,255,calc(.18 + .5*var(--g)))}
   #ign .nd{fill:rgba(127,233,255,.30);transition:fill .25s}
   #ign .nd.on{fill:var(--h);filter:drop-shadow(0 0 2.5px rgba(127,233,255,.8))}
 
   /* 코어 별빛 — 6방향 스파이크가 충전량만큼 뻗는다 */
-  #ign .spike{stroke:#DFFAFF;stroke-width:1;stroke-linecap:round;
-    transform-origin:50px 50px;transform:scale(calc(.20 + .95*var(--g)));
+  /* 광선은 끝이 뾰족한 삼각형이라 선이 아니라 별빛으로 읽힌다 */
+  #ign .spike{transform-origin:50px 50px;transform:scale(calc(.22 + .9*var(--g)));
     opacity:calc(.3 + .7*var(--g));
-    filter:drop-shadow(0 0 calc(2px + 9px*var(--g)) rgba(127,233,255,.8))}
+    filter:drop-shadow(0 0 calc(2px + 11px*var(--g)) rgba(127,233,255,.85))}
+  #ign .ry{fill:#EAFDFF}
   #ign .cdot{fill:#F2FEFF;r:calc(1.1px + 2.6px*var(--g));
     filter:drop-shadow(0 0 calc(4px + 26px*var(--g)) rgba(127,233,255,calc(.55 + .45*var(--g))))}
 
@@ -983,45 +987,65 @@ const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
         rows=[...document.querySelectorAll("#gcheck li")], skip=document.getElementById("gskip");
   const LEN=263.9;
 
-  /* 육각 격자를 만든다. 축좌표(q,r)로 반지름 2짜리 정육각 배치 = 19칸.
-     19개를 손으로 쓰지 않고, 중심에서 가까운 순서로 점등 문턱을 매긴다. */
-  const R=6.2, SQ3=Math.sqrt(3);
-  const cells=[];
-  for(let q=-2;q<=2;q++) for(let r=-2;r<=2;r++){
-    if(Math.abs(q+r)>2) continue;
-    cells.push({x:50+1.5*R*q, y:50+SQ3*R*(r+q/2), d:Math.max(Math.abs(q),Math.abs(r),Math.abs(q+r))});
-  }
-  cells.sort((a,b)=>(a.d-b.d)||(a.x-b.x)||(a.y-b.y));
+  /* 중앙부를 만든다.
+     균일한 벌집 타일은 납작해 보인다 — 레퍼런스처럼 크기가 제각각인 육각이
+     흩어지고, 가운데 섬광이 주인공이 되게 한다. */
+  const NS="http://www.w3.org/2000/svg";
+  const el=(t,a)=>{const e=document.createElementNS(NS,t);
+    for(const k in a) e.setAttribute(k,a[k]); return e;};
+  const hexPts=(cx,cy,r)=>{const o=[];
+    for(let k=0;k<6;k++){const a=Math.PI/180*(60*k+30);
+      o.push((cx+r*Math.cos(a)).toFixed(2)+","+(cy+r*Math.sin(a)).toFixed(2));}
+    return o.join(" ");};
+
   const hexG=document.getElementById("hexes"), ndG=document.getElementById("nodes"),
         spG=document.getElementById("spikes");
-  const NS="http://www.w3.org/2000/svg";
+  const SQ3=Math.sqrt(3), STEP=4.6;
+  /* 축좌표 + 칸마다 다른 배율. 0 이면 그리지 않는다 — 빈자리가 있어야 흩어져 보인다. */
+  const PLAN=[
+    [ 0, 0,  0  ],
+    [ 1, 0, 1.00],[ 0, 1, .80],[-1, 1, 1.00],[-1, 0, .80],[ 0,-1, 1.00],[ 1,-1, .80],
+    [ 2, 0, .66],[ 1, 1, .92],[ 0, 2, 0   ],[-1, 2, .60],[-2, 2, .88],[-2, 1, .66],
+    [-2, 0, 0   ],[-1,-1, .92],[ 0,-2, .60],[ 1,-2, .88],[ 2,-2, 0   ],[ 2,-1, .66]
+  ];
   const hexEls=[], ndEls=[];
-  cells.forEach((c,i)=>{
-    const pts=[];
-    for(let k=0;k<6;k++){ const a=Math.PI/180*(60*k);
-      pts.push((c.x+R*Math.cos(a)).toFixed(2)+","+(c.y+R*Math.sin(a)).toFixed(2)); }
-    const h=document.createElementNS(NS,"polygon");
-    h.setAttribute("points",pts.join(" ")); h.setAttribute("class","hx");
-    hexG.appendChild(h); hexEls.push(h);
-    if(c.d>0){                                   /* 중심 칸에는 노드를 두지 않는다 */
-      const n=document.createElementNS(NS,"circle");
-      n.setAttribute("cx",c.x.toFixed(2)); n.setAttribute("cy",c.y.toFixed(2));
-      n.setAttribute("r","0.8"); n.setAttribute("class","nd");
-      ndG.appendChild(n); ndEls.push({el:n,i});
-    }
+  /* 바깥을 감싸는 큰 육각 하나 — 흩어진 조각에 뼈대를 준다 */
+  hexG.appendChild(el("polygon",{points:hexPts(50,50,20.5),class:"hxout"}));
+  /* 뾰족머리 육각의 축좌표 → 화면좌표. x=size*√3*(q+r/2), y=size*1.5*r */
+  const built=[];
+  PLAN.forEach(([q,r,f])=>{
+    if(!f) return;
+    built.push({ x:50+STEP*SQ3*(q+r/2), y:50+STEP*1.5*r, f,
+                 d:Math.max(Math.abs(q),Math.abs(r),Math.abs(q+r)) });
   });
-  /* 코어 스파이크 — 6방향 긴 선 + 30도 어긋난 짧은 선 */
-  for(let k=0;k<12;k++){
-    const a=Math.PI/180*(30*k), L=k%2?9:22;
-    const l=document.createElementNS(NS,"line");
-    l.setAttribute("x1",(50+2*Math.cos(a)).toFixed(2)); l.setAttribute("y1",(50+2*Math.sin(a)).toFixed(2));
-    l.setAttribute("x2",(50+L*Math.cos(a)).toFixed(2)); l.setAttribute("y2",(50+L*Math.sin(a)).toFixed(2));
-    spG.appendChild(l);
-  }
+  built.sort((a,b)=>(a.d-b.d)||(a.x-b.x));
+  built.forEach(c=>{
+    const h=el("polygon",{points:hexPts(c.x,c.y,STEP*c.f*.92),class:"hx"});
+    hexG.appendChild(h); hexEls.push(h);
+    const n=el("circle",{cx:c.x.toFixed(2),cy:c.y.toFixed(2),r:(.55+.45*c.f).toFixed(2),class:"nd"});
+    ndG.appendChild(n); ndEls.push(n);
+  });
+  /* 흩뿌린 입자 */
+  [[38,36],[62,34],[68,58],[33,60],[50,28],[50,72],[28,47],[72,48],[41,66],[59,66]]
+    .forEach(([x,y])=>ndG.appendChild(el("circle",{cx:x,cy:y,r:.42,class:"pt"})));
+
+  /* 코어 섬광 — 끝이 뾰족한 삼각형 광선이라야 별빛으로 읽힌다 */
+  const ray=(deg,len,half)=>{
+    const a=Math.PI/180*deg, px=-Math.sin(a)*half, py=Math.cos(a)*half;
+    return el("polygon",{class:"ry",points:
+      [(50+px).toFixed(2)+","+(50+py).toFixed(2),
+       (50-px).toFixed(2)+","+(50-py).toFixed(2),
+       (50+len*Math.cos(a)).toFixed(2)+","+(50+len*Math.sin(a)).toFixed(2)].join(" ")});
+  };
+  [0,90,180,270].forEach(d=>spG.appendChild(ray(d,23,1.15)));
+  [45,135,225,315].forEach(d=>spG.appendChild(ray(d,13,.8)));
+  for(let k=0;k<12;k++){ const d=22.5+30*k; if(d%45===0) continue;
+    spG.appendChild(ray(d,8,.45)); }
+
   function lattice(v){
     const lit=Math.round(v*hexEls.length);
     hexEls.forEach((h,i)=>h.classList.toggle("on", i<lit));
-    ndEls.forEach(o=>o.el.classList.toggle("on", o.i<lit));
+    ndEls.forEach((n,i)=>n.classList.toggle("on", i<lit));
   }
 
   let v=0, holding=false, done=false, raf=0, coast=0;
