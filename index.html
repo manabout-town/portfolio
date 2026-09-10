@@ -145,8 +145,8 @@
      화면에 뜨는 값은 전부 이 페이지의 간트·히어로에서 런타임에 읽어 온다. */
   #boot{position:fixed;inset:0;z-index:85;display:grid;place-items:center;
     background:radial-gradient(120% 90% at 50% 45%,rgba(5,6,14,.97),rgba(3,4,10,1) 72%);
-    transition:opacity .5s ease,visibility .5s}
-  #boot.off{opacity:0;visibility:hidden;pointer-events:none}
+    transition:opacity .62s cubic-bezier(.7,0,.2,1),transform .62s cubic-bezier(.7,0,.2,1),visibility .62s}
+  #boot.off{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-1.5%) scale(1.015)}
   .bwrap{width:min(760px,86vw);display:flex;flex-direction:column;gap:clamp(24px,4vh,44px)}
   .btop{margin:0;font-family:var(--f-mono);font-size:11px;letter-spacing:.24em;
     text-transform:uppercase;color:var(--steel-d)}
@@ -159,15 +159,29 @@
     box-shadow:0 0 12px rgba(216,207,166,.5)}
   .bdots{position:absolute;left:0;right:0;top:46px;height:1px}
   .bdot{position:absolute;top:-3px;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;
-    background:#141A2C;border:1px solid #2A3050;transition:background .2s,border-color .2s,transform .2s}
+    background:#141A2C;border:1px solid #2A3050;
+    transition:background .32s ease,border-color .32s ease,transform .32s cubic-bezier(.2,1.4,.4,1)}
   .bdot.on{background:var(--gold);border-color:var(--gold);transform:scale(1.25);
     box-shadow:0 0 9px rgba(216,207,166,.6)}
   .bmonths{display:flex;justify-content:space-between;margin-top:12px;
     font-family:var(--f-mono);font-size:10px;letter-spacing:.18em;color:var(--steel-d)}
   .bedu{position:absolute;top:6px;left:0;font-family:var(--f-mono);font-size:10px;
     letter-spacing:.14em;color:var(--steel-d)}
+  .btoday{position:absolute;left:100%;top:-3px;margin-left:-3.5px;width:7px;height:7px;
+    border-radius:50%;background:#141A2C;border:1px solid #2A3050;font-style:normal;
+    transition:border-color .3s,background .3s}
+  .btoday::after{content:"오늘";position:absolute;right:0;top:-20px;
+    font-family:var(--f-mono);font-size:9.5px;letter-spacing:.16em;color:var(--steel-d);
+    transition:color .3s}
+  .btoday.on{border-color:var(--gold);background:var(--gold)}
+  .btoday.on::after{color:var(--gold)}
   .blabel{margin:16px 0 0;height:1.6em;font-family:var(--f-mono);font-size:13px;
     letter-spacing:.06em;color:var(--gold-hi)}
+  /* 이름이 툭 바뀌면 끊겨 보인다 — 한 번씩 살짝 올라오며 바뀐다 */
+  .blabel.flip{animation:bflip .26s ease-out both}
+  /* 0 에서 시작하면 프레임이 느린 기기에서 재시작이 겹쳐 글자가 계속 안 보인다.
+     어느 순간에 잡혀도 읽히도록 바닥을 올려 둔다. */
+  @keyframes bflip{from{opacity:.55;transform:translateY(3px)}to{opacity:1;transform:none}}
   .blabel s{text-decoration:none;color:var(--steel-d);margin-right:10px}
 
   .bnums{display:flex;gap:clamp(20px,5vw,54px);flex-wrap:wrap}
@@ -832,87 +846,6 @@
 
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ─────────── 인트로 표지 ───────────
-   저절로 열리지 않는 관문은 리뷰어에게 통행료를 물린다. 여기서는 아무것도
-   요구하지 않고 2.4초 동안 다섯 달치 이력을 훑어 준 뒤 비켜선다.
-   화면에 뜨는 값은 전부 이 페이지 안에서 읽어 온다 — 인트로용으로 따로
-   적어 둔 숫자가 없으므로 본문과 어긋날 수 없다.
-   실패해도 페이지는 남는다 — 스크립트가 죽으면 4초 뒤 저절로 걷힌다. */
-(function(){
-  const boot=document.getElementById("boot");
-  if(!boot) return;
-  const head=document.getElementById("bhead"), dots=document.getElementById("bdots"),
-        label=document.getElementById("blabel"), nums=document.getElementById("bnums"),
-        edu=document.getElementById("bedu"), skip=document.getElementById("bskip");
-
-  let t0=0, raf=0, lit=-1;
-  const finish=()=>{
-    if(boot.dataset.done) return;
-    boot.dataset.done="1";
-    boot.classList.add("off");
-    document.body.classList.add("launched");
-    cancelAnimationFrame(raf);
-    setTimeout(()=>boot.remove(),600);
-  };
-  if(RM){ finish(); return; }
-
-  /* 간트 행에서 그대로 읽는다. 축은 5월(0%)~9월(100%). */
-  const rows=[...document.querySelectorAll("#year .grow")].map(r=>{
-    const bar=r.querySelector(".gtrack i");
-    return { n:r.querySelector("b").textContent.trim(),
-             at:parseFloat(bar.style.left)||0,
-             edu:r.classList.contains("edu") };
-  });
-  const shots=rows.filter(r=>!r.edu).sort((a,b)=>a.at-b.at);
-  const eduRow=rows.find(r=>r.edu);
-  if(eduRow) edu.textContent="◀ 2월 국비 개강";
-
-  const dotEls=shots.map(r=>{
-    const d=document.createElement("i");
-    d.className="bdot"; d.style.left=r.at+"%";
-    dots.appendChild(d); return d;
-  });
-
-  /* 카운터도 히어로의 네 숫자를 그대로 쓴다 */
-  const metrics=[...document.querySelectorAll(".hero .metrics div")].map(d=>({
-    v:d.querySelector("b").textContent.trim(), k:d.querySelector("span").textContent.trim()
-  }));
-  nums.innerHTML=metrics.map(m=>`<div><b>0</b><span>${m.k}</span></div>`).join("");
-  const numEls=[...nums.querySelectorAll("b")];
-  const targets=metrics.map(m=>parseInt(m.v.replace(/,/g,""),10)||0);
-
-  const SWEEP=1900, HOLD=420;
-  function frame(now){
-    if(!t0) t0=now;
-    const e=now-t0, p=Math.min(1,e/SWEEP), ease=1-Math.pow(1-p,2.2);
-    head.style.width=(ease*100)+"%";
-    let n=0;
-    dotEls.forEach((d,i)=>{ const on=shots[i].at<=ease*100; d.classList.toggle("on",on); if(on) n++; });
-    if(n!==lit){
-      lit=n;
-      const cur=shots[n-1];
-      if(cur) label.innerHTML=`<s>${String(n).padStart(2,"0")}</s>${cur.n}`;
-      numEls.forEach((el,i)=>{
-        const val=Math.round(targets[i]*(n/shots.length));
-        el.textContent=val.toLocaleString("en-US");
-      });
-    }
-    /* 마지막 발사가 9월 초라 축의 뒤쪽이 비어 있다. 다 켜지면 굳이 더 끌지 않는다. */
-    if(p<1 && lit<shots.length){ raf=requestAnimationFrame(frame); return; }
-    head.style.width="100%";
-    numEls.forEach((el,i)=>el.textContent=targets[i].toLocaleString("en-US"));
-    label.innerHTML=`<s>${String(shots.length).padStart(2,"0")}</s>전부 내보냈습니다`;
-    setTimeout(finish,HOLD);
-  }
-  raf=requestAnimationFrame(frame);
-
-  /* 아무 입력이나 들어오면 바로 비켜선다. 스크롤은 막지 않는다. */
-  ["pointerdown","keydown","wheel","touchstart"].forEach(ev=>
-    addEventListener(ev,finish,{once:true,passive:true}));
-  skip.addEventListener("click",finish);
-  setTimeout(finish,4000);
-})();
-
 /* ─────────── WebGL: 심우주 성운 ─────────── */
 (function(){
   const c=document.getElementById("bg");
@@ -1128,6 +1061,119 @@ track.innerHTML=P.map((p,i)=>`
     <div class="cardfoot">${p.link?`<a class="go" href="${p.link}" target="_blank" rel="noopener">열어보기 ↗</a>`:""}</div>
     <button class="more" data-open="${i}">자세히 보기</button>
   </article>`).join("");
+
+/* ─────────── 인트로 표지 ───────────
+   저절로 열리지 않는 관문은 리뷰어에게 통행료를 물린다. 여기서는 아무것도
+   요구하지 않고 2.4초 동안 다섯 달치 이력을 훑어 준 뒤 비켜선다.
+   화면에 뜨는 값은 전부 이 페이지 안에서 읽어 온다 — 인트로용으로 따로
+   적어 둔 숫자가 없으므로 본문과 어긋날 수 없다.
+   실패해도 페이지는 남는다 — 스크립트가 죽으면 4초 뒤 저절로 걷힌다. */
+(function(){
+  const boot=document.getElementById("boot");
+  if(!boot) return;
+  const head=document.getElementById("bhead"), dots=document.getElementById("bdots"),
+        label=document.getElementById("blabel"), nums=document.getElementById("bnums"),
+        edu=document.getElementById("bedu"), skip=document.getElementById("bskip");
+
+  let t0=0, raf=0, lit=-1;
+  const finish=()=>{
+    if(boot.dataset.done) return;
+    boot.dataset.done="1";
+    boot.classList.add("off");
+    document.body.classList.add("launched");
+    cancelAnimationFrame(raf);
+    setTimeout(()=>boot.remove(),700);
+  };
+  if(RM){ finish(); return; }
+
+  /* 간트 행에서 그대로 읽는다. 축은 5월(0%)~9월(100%). */
+  const rows=[...document.querySelectorAll("#year .grow")].map(r=>{
+    const bar=r.querySelector(".gtrack i");
+    return { n:r.querySelector("b").textContent.trim(),
+             at:parseFloat(bar.style.left)||0,
+             edu:r.classList.contains("edu") };
+  });
+  /* 프로젝트 카드(P)와 이름으로 이어 붙여 운영 여부와 테스트 수를 가져온다.
+     프로젝트별 테스트 합이 히어로의 1,240 과 정확히 같으므로,
+     훑는 도중에 뜨는 중간값도 전부 그 시점의 실제 누적값이다. */
+  const shots=rows.filter(r=>!r.edu).sort((x,y)=>x.at-y.at).map(r=>{
+    const hit=(typeof P!=="undefined"?P:[]).find(x=>x.n===r.n);
+    const t=hit&&hit.m.find(x=>/tests$/.test(x));
+    return { ...r, live:!!hit&&hit.st==="운영 중",
+             tests:t?parseInt(t.replace(/[^\d]/g,""),10):0 };
+  });
+  if(rows.some(r=>r.edu)) edu.textContent="◀ 2월 국비 개강";
+
+  const dotEls=shots.map(r=>{
+    const d=document.createElement("i");
+    d.className="bdot"; d.style.left=r.at+"%";
+    dots.appendChild(d); return d;
+  });
+  const today=document.createElement("i");
+  today.className="btoday";
+  dots.appendChild(today);
+
+  /* 훑는 동안에는 정확히 셀 수 있는 셋만 올린다. */
+  const KEYS=["Shipped","Live now","Tests green"];
+  nums.innerHTML=KEYS.map(k=>`<div><b>0</b><span>${k}</span></div>`).join("");
+  const numEls=[...nums.querySelectorAll("b")];
+  /* 숫자는 '목표를 향해 당기는' 대신 이전값→목표값을 고정 시간에 잇는다.
+     당기는 방식은 목표에 정확히 닿지 않고, 프레임이 느리면 한없이 끈다. */
+  const tgt=[0,0,0], from=[0,0,0];
+  let rollAt=0, flipAt=-1e9;
+  /* 등장 애니메이션을 연달아 재시작하면 글자가 계속 투명 상태로 깜빡인다.
+     한 번 시작하면 최소 이만큼은 그대로 둔다. */
+  const flip=now=>{
+    if(now-flipAt<260) return;
+    flipAt=now;
+    label.classList.remove("flip"); void label.offsetWidth; label.classList.add("flip");
+  };
+
+  const SWEEP=2800, HOLD=800, ROLL=280;   /* ROLL: 숫자가 목표에 닿는 데 걸리는 ms */
+  function frame(now){
+    if(!t0){ t0=now; rollAt=now; }
+    const e=now-t0, p=Math.min(1,e/SWEEP);
+    /* 타임라인은 거의 등속이라야 시간축으로 읽힌다. 끝에서만 살짝 눕힌다. */
+    const ease=1-Math.pow(1-p,1.35), x=ease*100;
+    head.style.width=x+"%";
+    today.classList.toggle("on", x>=99.4);
+
+    let n=0;
+    dotEls.forEach((d,i)=>{ const on=shots[i].at<=x; d.classList.toggle("on",on); if(on) n++; });
+    if(n!==lit){
+      lit=n;
+      const cur=shots[n-1];
+      if(cur){
+        label.innerHTML=`<s>${String(n).padStart(2,"0")}</s>${cur.n}`;
+        flip(now);
+      }
+      const seen=shots.slice(0,n), u=Math.min(1,(now-rollAt)/ROLL);
+      tgt.forEach((t,i)=>from[i]=from[i]+(t-from[i])*(1-Math.pow(1-u,3)));
+      tgt[0]=n;
+      tgt[1]=seen.filter(r=>r.live).length;
+      tgt[2]=seen.reduce((a,r)=>a+r.tests,0);
+      rollAt=now;
+    }
+    const u=Math.min(1,(now-rollAt)/ROLL), ease3=1-Math.pow(1-u,3);
+    tgt.forEach((t,i)=>{
+      numEls[i].textContent=Math.round(from[i]+(t-from[i])*ease3).toLocaleString("en-US");
+    });
+    const settled=u>=1;
+
+    if(p<1||!settled){ raf=requestAnimationFrame(frame); return; }
+    numEls.forEach((el,i)=>el.textContent=tgt[i].toLocaleString("en-US"));
+    label.innerHTML=`<s>${String(shots.length).padStart(2,"0")}</s>전부 내보냈습니다`;
+    flipAt=-1e9; flip(now);
+    setTimeout(finish,HOLD);
+  }
+  raf=requestAnimationFrame(frame);
+
+  /* 아무 입력이나 들어오면 바로 비켜선다. 스크롤은 막지 않는다. */
+  ["pointerdown","keydown","wheel","touchstart"].forEach(ev=>
+    addEventListener(ev,finish,{once:true,passive:true}));
+  skip.addEventListener("click",finish);
+  setTimeout(finish,SWEEP+HOLD+2500);   /* 스크립트가 멈춰도 반드시 걷힌다 */
+})();
 
 /* ─────────── 20초 요약: 목록 생성 + 궤도로 점프 ───────────
    목록도 "여기부터 보세요"도 같은 P를 쓴다. 카드가 늘면 여기도 저절로 따라온다. */
