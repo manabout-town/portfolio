@@ -1,0 +1,89 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<!-- 카드 비주얼 원본. og.html 과 같은 방식이다 —
+     이 파일을 고치고 1600×1000 으로 스크린샷해 media/toss-seller.png 로 저장한다.
+     카드 제목이 이미 한 문장을 말하므로 여기서는 파이프라인만 보여준다. -->
+<style>
+:root{--ink:#06070F;--ink2:#0C0E1C;--steel:#8C93B0;--steel-d:#3A4060;
+  --wine:#8C1E52;--gold:#D8CFA6;--gold-hi:#F3EFDD;--white:#EEF1F8;
+  --f-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  --f-sans:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+*{box-sizing:border-box;margin:0}
+body{width:1600px;height:1000px;overflow:hidden;background:var(--ink);color:var(--white);
+  font-family:var(--f-sans);word-break:keep-all;position:relative}
+.neb{position:absolute;inset:0;background:
+  radial-gradient(58% 44% at 20% 16%,rgba(140,30,82,.30),transparent 68%),
+  radial-gradient(52% 42% at 84% 80%,rgba(60,44,108,.30),transparent 70%)}
+.grain{position:absolute;inset:0;opacity:.10;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+.vig{position:absolute;inset:0;background:radial-gradient(124% 94% at 44% 30%,transparent 34%,rgba(2,3,9,.86) 100%)}
+.wrap{position:absolute;inset:0;padding:66px 72px 64px;display:flex;flex-direction:column;justify-content:space-between}
+
+.top{display:flex;justify-content:space-between;align-items:baseline;
+  padding-bottom:30px;border-bottom:1px solid rgba(216,207,166,.18);
+  font-family:var(--f-mono);font-size:16px;letter-spacing:.22em;text-transform:uppercase;color:var(--steel)}
+.top b{color:var(--gold-hi);font-weight:500}
+
+.rail{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;position:relative}
+.rail::before{content:"";position:absolute;left:24px;right:24px;top:32px;height:1px;
+  background:linear-gradient(90deg,rgba(216,207,166,.45),rgba(216,207,166,.24) 78%,rgba(216,207,166,0))}
+.st{position:relative;padding-top:78px}
+.st::before{content:"";position:absolute;left:21px;top:24px;width:17px;height:17px;border-radius:50%;
+  background:var(--ink);border:1px solid rgba(216,207,166,.65);box-shadow:0 0 0 6px rgba(6,7,15,.95)}
+.st.hot::before{background:var(--gold);border-color:var(--gold)}
+.st s{position:absolute;left:58px;top:22px;text-decoration:none;
+  font-family:var(--f-mono);font-size:14px;letter-spacing:.2em;color:var(--steel-d)}
+.st b{display:block;font-size:30px;font-weight:700;letter-spacing:-.025em;line-height:1.26}
+.st p{margin-top:17px;color:#9AA2BE;font-size:19px;line-height:1.66}
+.st code{display:inline-block;margin-top:21px;font-family:var(--f-mono);font-size:15px;letter-spacing:.02em;
+  color:var(--gold);background:rgba(216,207,166,.09);border:1px solid rgba(216,207,166,.22);
+  border-radius:2px;padding:7px 12px}
+
+.mid{display:flex;gap:15px;align-items:center;flex-wrap:wrap;
+  font-family:var(--f-mono);font-size:16px;letter-spacing:.14em;color:var(--steel)}
+.mid i{font-style:normal;font-size:16px;color:var(--gold-hi);border:1px solid rgba(216,207,166,.30);
+  border-radius:2px;padding:9px 14px;background:rgba(216,207,166,.06)}
+.mid em{font-style:normal;color:var(--steel-d)}
+
+.guards{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;
+  border-top:1px solid rgba(216,207,166,.18);padding-top:40px}
+.g s{display:block;text-decoration:none;font-family:var(--f-mono);font-size:13px;
+  letter-spacing:.22em;text-transform:uppercase;color:#C7477F;margin-bottom:13px}
+.g b{display:block;font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.38}
+.g p{margin-top:13px;color:#8C93B0;font-size:18.5px;line-height:1.6}
+.g p code{font-family:var(--f-mono);font-size:17px;color:var(--gold)}
+</style></head><body>
+<div class="neb"></div><div class="grain"></div><div class="vig"></div>
+<div class="wrap">
+  <div class="top">
+    <span><b>위탁판매 자동화</b> — 주문 → 발주 → 송장 파이프라인</span>
+    <span>Python 31 files · 6,143 lines · no server · no db</span>
+  </div>
+
+  <div>
+    <div class="rail">
+      <div class="st hot"><s>01</s><b>결제완료 수집</b>
+        <p>토스 주문에서 결제완료 건만 집어 온다</p><code>GET /orders?status=PAID</code></div>
+      <div class="st"><s>02</s><b>공급처 판별</b>
+        <p>관리코드 접두사로 어디에 발주할지 정하고, 같은 주문·같은 공급처끼리 묶는다</p><code>KKUM · FC · EF · LF · SO</code></div>
+      <div class="st"><s>03</s><b>발주 · 예치금 결제</b>
+        <p>공급처별 계정으로 발주를 넣고 예치금으로 결제한다</p><code>POST /orders → /payments</code></div>
+      <div class="st"><s>04</s><b>상태 전이</b>
+        <p>토스 주문을 상품준비중으로 밀어 재처리를 막는다</p><code>PREPARING_PRODUCT</code></div>
+      <div class="st hot"><s>05</s><b>송장 역주입</b>
+        <p>공급처 운송장을 토스에 되돌려 넣으면 배송중으로 자동 전환</p><code>PUT /orders/delivery</code></div>
+    </div>
+  </div>
+
+  <div class="mid">
+    <i>cron */5</i><em>발주</em><i>cron */30</i><em>송장</em><i>daily</i><em>품절 대조</em><i>weekly</i><em>무판매 상품 회전</em>
+  </div>
+
+  <div class="guards">
+    <div class="g"><s>Guard 01</s><b>매핑이 안 풀리면 주문을 통째로 건너뛴다</b>
+      <p>풀린 행만 발주하면 나머지가 빠진 채 배송된다. 추측 매칭은 곧 오배송이다.</p></div>
+    <div class="g"><s>Guard 02</s><b>돈이 나가는 명령은 드라이런이 기본</b>
+      <p><code>--live</code> 를 붙이지 않으면 보낼 내용만 보여주고 아무것도 쏘지 않는다.</p></div>
+    <div class="g"><s>Guard 03</s><b>상태 저장소를 따로 두지 않았다</b>
+      <p>결제완료만 집어 다음 상태로 밀기 때문에 토스 주문 상태 자체가 재처리를 막는다.</p></div>
+  </div>
+</div>
+</body></html>
