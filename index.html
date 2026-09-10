@@ -1108,19 +1108,37 @@ const P=[
 const PH=n=>n==="위탁판매 자동화"
   ?"화면이 없는 프로젝트입니다<br>터미널에서 스크립트가 돌고 결과는 토스쇼핑에 올라갑니다"
   :"토스 앱 안에서만 열립니다<br>스토어 링크 대신 실행 데모를 넣었습니다";
+/* 영상이 안 나오는 경우가 코덱·네트워크·정책 등 여러 가지다. 어느 쪽이든
+   빈 상자에 DEMO 배지만 남는 것이 제일 나쁘므로 안내 문구로 되돌린다. */
+const VPH=p=>p.link
+  ?"실행 데모를 재생하지 못했습니다<br>열어보기 링크로 실제 화면을 볼 수 있습니다"
+  :"실행 데모를 재생하지 못했습니다";
 const shot=p=>p.vid
-  ?`<video src="${p.vid}" autoplay muted loop playsinline preload="metadata" aria-label="${p.n} 실행 데모"></video>`
+  ?`<video src="${p.vid}" autoplay muted loop playsinline preload="metadata" aria-label="${p.n} 실행 데모" data-ph="${VPH(p)}"></video>`
   :p.img
   ?`<img src="${p.img}" alt="${p.n} 화면" data-ph="${PH(p.n)}">`
   :`<span class="ph">${PH(p.n)}</span>`;
-/* 이미지 로드 실패는 버블링되지 않으므로 캡처 단계에서 받는다. */
-addEventListener("error",e=>{
-  const el=e.target;
-  if(el.tagName!=="IMG"||!el.dataset.ph) return;
+
+/* 미디어 실패 → 안내 문구. error 는 버블링되지 않으므로 캡처 단계에서 받는다. */
+function fallback(el){
+  if(!el||!el.dataset.ph||!el.isConnected) return;
   const ph=document.createElement("span");
   ph.className=el.dataset.phc||"ph"; ph.innerHTML=el.dataset.ph;
+  const box=el.closest(".shot");
+  if(box) box.classList.remove("vid","wide");   // DEMO 배지와 레터박스를 같이 걷는다
   el.replaceWith(ph);
+}
+addEventListener("error",e=>{
+  const el=e.target;
+  if(el.tagName==="IMG"||el.tagName==="VIDEO") fallback(el);
 },true);
+/* 코덱 미지원은 error 가 늦거나 아예 안 오는 브라우저가 있어 한 번 더 확인한다.
+   networkState 3 = NO_SOURCE, readyState 0 = 메타데이터도 못 읽음. */
+addEventListener("load",()=>setTimeout(()=>{
+  document.querySelectorAll("video[data-ph]").forEach(v=>{
+    if(v.readyState===0&&v.networkState===3) fallback(v);
+  });
+},5000));
 
 const track=document.getElementById("track");
 track.innerHTML=P.map((p,i)=>`
@@ -1336,7 +1354,7 @@ if(COSMOS_OK) addEventListener("load",()=>{
   const ease="cubic-bezier(.16,1,.3,1)";
 
   function media(p){
-    if(p.vid) return `<video src="${p.vid}" autoplay muted loop playsinline></video>`;
+    if(p.vid) return `<video src="${p.vid}" autoplay muted loop playsinline data-ph="실행 화면 없음<br>${VPH(p)}" data-phc="none"></video>`;
     const none=p.n==="SevMerge"?"팀 레포에서 코드로 확인할 수 있습니다"
       :p.n==="위탁판매 자동화"?"화면이 없는 프로젝트입니다<br>파이썬 31개가 수집·등록·발주·송장을 나눠 맡습니다"
       :"토스 앱 안에서만 로그인이 열립니다";
