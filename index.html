@@ -951,6 +951,27 @@ const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
   /* 워핑에 쓰는 변위장은 좌표를 밀어내는 용도라 디테일이 필요 없다.
      여기만 3옥타브로 줄이면 눈에는 차이가 없고 노이즈 호출이 4번 준다. */
   float fbm3(vec2 p){float v=0.,a=.5;for(int i=0;i<3;i++){v+=a*n(p);p*=2.03;a*=.5;}return v;}
+  /* 별. 격자 한 칸에 최대 하나를 놓되 위치는 칸 안에서 흩고, 밝기를 제곱해
+     대부분은 흐리고 몇 개만 밝게 남긴다. 위치는 고정이고 밝기만 흔들린다 —
+     매 프레임 자리를 새로 뽑으면 별이 아니라 노이즈로 보인다. */
+  float star(vec2 uv,float sc,float dens,float k,float tw,float amp){
+    vec2 g=uv*sc,i=floor(g),fr=fract(g);
+    if(h(i)>dens) return 0.;
+    vec2 c=vec2(h(i+11.3),h(i+37.7));
+    float dd=length(fr-c);
+    float mag=pow(h(i+5.1),3.6);
+    float tk=.72+.28*sin(t*tw+h(i+91.7)*6.2832);
+    return amp*mag*tk*exp(-dd*dd*k);
+  }
+  /* 먼 층 전용. 깜빡임이 보이지 않는 크기라 sin 과 해시 하나를 뺀다. */
+  float dust(vec2 uv,float sc,float dens,float k,float amp){
+    vec2 g=uv*sc,i=floor(g),fr=fract(g);
+    float e=h(i);
+    if(e>dens) return 0.;
+    vec2 c=vec2(h(i+11.3),h(i+37.7));
+    float dd=length(fr-c);
+    return amp*pow(e/dens,2.2)*exp(-dd*dd*k);
+  }
   /* 정렬 디더(Bayer 8x8). 2x2 패턴을 세 번 접어 만든다 — 행렬 배열이 필요 없다. */
   float b2(vec2 a){a=floor(a);return fract(a.x*.5+a.y*a.y*.75);}
   #define b4(a) (b2(.5*(a))*.25+b2(a))
@@ -971,18 +992,22 @@ const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
     float fil=pow(1.-abs(f*2.-1.),8.);
     float d=length(uv-m*.5);
     float lamp=smoothstep(.72,0.,d);
-    vec3 col=vec3(.010,.013,.032);
-    col+=vec3(.09,.10,.15)*f*.34;
-    col+=mix(vec3(.28,.05,.17),vec3(.11,.12,.19),bend)*fil*.34;
-    /* 능선의 꼭대기에서만 금색이 뜨게 한다 — 본문 위를 지나는 띠가 되지 않도록. */
-    col+=vec3(.84,.80,.66)*pow(fil,3.4)*lamp*.34;
-    col+=vec3(.50,.53,.66)*pow(f,4.)*.12;
-    float sp=step(.99885,h(floor(gl_FragCoord.xy*.5)+floor(t*4.)));
-    col+=vec3(.90,.94,1.)*sp*.52*smoothstep(1.2,.1,d);
+    /* 은하면 — 기울인 축에서 멀어질수록 성운도 별도 옅어진다. */
+    vec2 ruv=mat2(.93,-.37,.37,.93)*uv;
+    float band=exp(-ruv.y*ruv.y*3.4);
+    vec3 col=vec3(.006,.008,.019);
+    col+=mix(vec3(.055,.060,.098),vec3(.12,.055,.085),bend)*f*f*.85*band;
+    col+=mix(vec3(.20,.06,.13),vec3(.09,.10,.16),bend)*fil*.04*band;
+    col+=vec3(.84,.80,.66)*pow(fil,3.4)*lamp*.13;
+    /* 네 층으로 깊이를 만든다. 가까운 층일수록 포인터에 더 밀려 시차가 생긴다. */
+    col+=star(uv+m*.008, 22.,.30,1600.,.9,1.25)*vec3(1.,.97,.92);
+    col+=star(uv+m*.004, 55.,.45, 380.,1.3,.85)*vec3(.94,.96,1.);
+    col+=dust(uv+m*.001,120.,.62,  90.,.62)*vec3(.90,.93,1.);
+    col+=dust(uv       ,255.,.78,  22.,.34)*(.4+.6*band)*vec3(.86,.90,1.);
     col*=1.-.46*length(uv)*.72;
     /* 디더 후 계단화. 매끄러운 그라데이션이 눈에 보이는 점 패턴으로 갈라진다.
        어두운 쪽이 뭉개지지 않도록 감마 공간에서 자른다. */
-    float L=14.;
+    float L=18.;
     col=sqrt(max(col,0.));
     col+=(b8(gl_FragCoord.xy/3.)-.5)/L;
     col=floor(col*L+.5)/L;
