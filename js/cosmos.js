@@ -1,4 +1,5 @@
 import * as THREE from "../vendor/three.module.min.js";
+import { createTierJudge } from "./tier.js";
 
 /* 팔레트는 기존 버건디/골드를 심우주로 계승한 값이다. 순검정을 피하려 바탕도 약간 푸르다. */
 const C_VOID = new THREE.Color(0x06070f);
@@ -362,7 +363,7 @@ export function initCosmos(opts) {
     });
   }
 
-  /* 강등 */
+  /* 강등과 복귀 */
   let tier = 0;
   let rt = null;
   function applyTier(t) {
@@ -373,12 +374,17 @@ export function initCosmos(opts) {
     if (cfg.nebulaScale < 1 && !rt) {
       rt = new THREE.WebGLRenderTarget(1, 1, { depthBuffer: false, stencilBuffer: false });
       blit.material.uniforms.uMap.value = rt.texture;
+    } else if (cfg.nebulaScale >= 1 && rt) {
+      // 복귀했으면 축소 렌더 타깃과 블릿 패스를 도로 걷어낸다
+      rt.dispose();
+      rt = null;
+      blit.material.uniforms.uMap.value = null;
     }
     activeKey = -1; // 동시 재생 수가 바뀌었으니 재판정
     resize();
   }
 
-  let slowSince = 0;
+  const judge = createTierJudge(TIERS.length);
   const bornAt = performance.now();
   const win = new Float32Array(60);
   let winI = 0, winN = 0;
@@ -387,13 +393,12 @@ export function initCosmos(opts) {
     // 저사양으로 오판하면 멀쩡한 기기가 저폴리로 떨어진다.
     if (now - bornAt < 3000) return;
     win[winI] = dt; winI = (winI + 1) % 60; winN = Math.min(60, winN + 1);
-    if (winN < 60 || tier >= TIERS.length - 1) return;
+    if (winN < 60) return;
     let sum = 0;
     for (let i = 0; i < 60; i++) sum += win[i];
-    if (60 / sum < 45) {
-      if (!slowSince) slowSince = now;
-      else if (now - slowSince > 3000) { tier++; applyTier(tier); slowSince = 0; winN = 0; }
-    } else slowSince = 0;
+    // 강등도 복귀도 여기서 나온다. 여유가 생기면 별과 영상이 도로 살아난다.
+    const next = judge.sample(60 / sum, now);
+    if (next >= 0) { tier = next; applyTier(tier); winN = 0; }
   }
 
   /* 크기 */
@@ -534,7 +539,7 @@ export function initCosmos(opts) {
     } else if (!running) {
       running = true;
       last = performance.now();
-      winN = 0; slowSince = 0;
+      winN = 0; judge.reset();
       bodies.forEach((b) => {
         if (b.video && b.playing && !b.failed) {
           const pr = b.video.play();
