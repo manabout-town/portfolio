@@ -28,7 +28,10 @@
     --f-sans:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   }
   *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
+  /* scroll-behavior:smooth 는 걷어냈다 — ScrollTrigger 의 snap 이 스크롤 위치를 직접 쓰는데
+     브라우저가 같은 이동을 한 번 더 애니메이션하면 둘이 싸운다.
+     앵커 이동의 부드러움은 js/scroll-snap.js 의 initSmoothAnchors 가 대신한다. */
+  html{scroll-behavior:auto}
   body{word-break:keep-all;margin:0;background:var(--ink);color:var(--white);font-family:var(--f-sans);overflow-x:hidden;cursor:none}
   a{color:inherit}
   ::selection{background:var(--gold);color:#06070F}
@@ -1480,28 +1483,21 @@ if(COSMOS_OK) addEventListener("load",()=>{
   })();
 })();
 
-/* ─────────── 카드 단위 스냅 ─────────── */
-(function(){
-  if(RM) return;
-  const pin=document.getElementById("pin");
-  let t=null, animating=false;
-  addEventListener("scroll",()=>{
-    if(animating) return;
-    clearTimeout(t);
-    t=setTimeout(()=>{
-      const r=pin.getBoundingClientRect(), span=pin.offsetHeight-innerHeight;
-      const prog=-r.top/span;
-      if(prog<0.02||prog>0.98) return;
-      const n=P.length-1;
-      const i=Math.round(prog*n);
-      const targetY=pin.offsetTop+(i/n)*span;
-      if(Math.abs(targetY-scrollY)<6) return;
-      animating=true;
-      scrollTo({top:targetY,behavior:"smooth"});
-      setTimeout(()=>{animating=false;},700);
-    },170);
-  },{passive:true});
-})();
+/* ─────────── 카드 단위 스냅 + 앵커 이동 ───────────
+   스냅은 ScrollTrigger 가 맡는다. 실패해도 페이지는 그대로 굴러간다 —
+   스냅이 없으면 자유 스크롤이 될 뿐이다. */
+import("./js/scroll-snap.js").then(m=>{
+  m.initSmoothAnchors();
+  m.initCardSnap(P.length);
+}).catch(()=>{
+  /* GSAP 을 못 불러오면 앵커라도 부드럽게 움직이게 한다. */
+  addEventListener("click",e=>{
+    const a=e.target.closest('a[href^="#"]'); if(!a) return;
+    const el=document.getElementById(a.getAttribute("href").slice(1)); if(!el) return;
+    e.preventDefault();
+    scrollTo({top:el.getBoundingClientRect().top+scrollY,behavior:RM?"auto":"smooth"});
+  });
+});
 
 /* ─────────── 터미널 스트림 ─────────── */
 (function(){
