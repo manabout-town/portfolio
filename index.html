@@ -847,11 +847,28 @@
 
 const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ─────────── WebGL: 심우주 성운 ─────────── */
+/* ─────────── 심우주 성운: WebGPU → WebGL → CSS ───────────
+
+   3단 폴백. 캔버스는 컨텍스트 타입을 하나만 가지므로 WebGPU 를 반드시 먼저 시도한다.
+   getContext("webgl") 이 한 번이라도 불리면 그 캔버스에서 WebGPU 는 영영 안 열린다.
+
+   두 경로의 그림은 같아야 한다. WGSL 판은 js/nebula.wgsl.js 에 있고 아래 GLSL 이 원본이다.
+   한쪽만 고치면 기기에 따라 다른 배경이 보인다. */
 (function(){
   const c=document.getElementById("bg");
+  /* 최종 폴백을 미리 깔아둔다. 캔버스가 불투명하게 그려지면 가려지고,
+     둘 다 실패하면 이게 남는다. WebGPU 판정이 비동기라 그 사이 빈 화면도 막아준다. */
+  c.style.background="radial-gradient(60% 60% at 50% 40%,#221240,#06070F)";
+
+  import("./js/nebula-vgpu.js")
+    .then(m=>m.startNebulaWebGPU(c,{reducedMotion:RM}))
+    .then(h=>{ if(h){ window.__nebulaBackend="webgpu"; } else { startWebGL(); } })
+    .catch(()=>startWebGL());
+
+function startWebGL(){
   const gl=c.getContext("webgl",{antialias:false,alpha:false});
-  if(!gl){ c.style.background="radial-gradient(60% 60% at 50% 40%,#221240,#06070F)"; return; }
+  if(!gl){ window.__nebulaBackend="css"; return; }
+  window.__nebulaBackend="webgl";
   const vs=`attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`;
   const fs=`precision highp float;uniform vec2 r;uniform float t;uniform vec2 m;
   float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -945,6 +962,7 @@ const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
     gl.drawArrays(gl.TRIANGLES,0,3);
     requestAnimationFrame(loop);
   })();
+}
 })();
 
 /* ─────────── 커서 ─────────── */
