@@ -1,15 +1,14 @@
 import * as THREE from "../vendor/three.module.min.js";
 import { createTierJudge } from "./tier.js";
 
-/* 팔레트는 기존 버건디/골드를 심우주로 계승한 값이다. 순검정을 피하려 바탕도 약간 푸르다. */
-const C_VOID = new THREE.Color(0x06070f);
+/* 팔레트는 기존 버건디/골드를 심우주로 계승한 값이다. */
 const C_NEBULA = new THREE.Color(0x8c1e52);
 const C_PLATINUM = new THREE.Color(0xd8cfa6);
 
 const TIERS = [
-  { stars: 20000, detail: 4, videos: 3, nebulaScale: 1 },
-  { stars: 8000, detail: 2, videos: 2, nebulaScale: 1 },
-  { stars: 3000, detail: 1, videos: 1, nebulaScale: 0.5 },
+  { stars: 20000, detail: 4, videos: 3 },
+  { stars: 8000, detail: 2, videos: 2 },
+  { stars: 3000, detail: 1, videos: 1 },
 ];
 
 const BODY_RADIUS = 3.1;
@@ -42,70 +41,6 @@ const FULLSCREEN_VS = `
 varying vec2 vUv;
 void main(){ vUv = uv; gl_Position = vec4(position.xy, 1.0, 1.0); }
 `;
-
-/* ── 성운 ─────────────────────────────────────────────── */
-
-function makeNebula() {
-  // 풀스크린 삼각형: 쿼드보다 프래그먼트 중복이 없다
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));
-  g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array([0, 0, 2, 0, 0, 2]), 2));
-
-  const mat = new THREE.ShaderMaterial({
-    uniforms: {
-      uRes: { value: new THREE.Vector2(1, 1) },
-      uTime: { value: 0 },
-      uProgress: { value: 0 },
-    },
-    vertexShader: FULLSCREEN_VS,
-    fragmentShader: `
-      precision highp float;
-      varying vec2 vUv;
-      uniform vec2 uRes; uniform float uTime; uniform float uProgress;
-      ${FBM}
-      void main(){
-        vec2 uv=(vUv*uRes-.5*uRes)/uRes.y;
-        // 진행도가 성운을 아래로 흘려보낸다. 항해감의 대부분이 여기서 나온다
-        vec2 q=uv*1.15+vec2(uProgress*.35,-uProgress*1.15);
-        float flow=fbm(q*1.5+vec2(0.,-uTime*.02)+fbm(q*2.1+uTime*.012));
-        float d=length(uv);
-        float glow=pow(smoothstep(1.35,.05,d)*.45+flow*.55,3.0);
-        vec3 col=mix(vec3(.024,.027,.059),vec3(.055,.030,.072),flow);
-        col+=vec3(.549,.118,.322)*glow*.80;
-        col+=vec3(.847,.812,.651)*pow(glow,4.0)*.55;
-        col+=vec3(.35,.30,.20)*pow(flow,3.2)*.16;
-        col*=1.-.34*length(uv)*.7;
-        gl_FragColor=vec4(col,1.);
-      }`,
-    depthTest: false,
-    depthWrite: false,
-  });
-
-  const mesh = new THREE.Mesh(g, mat);
-  mesh.frustumCulled = false;
-  const scene = new THREE.Scene();
-  scene.add(mesh);
-  return { scene, geometry: g, material: mat };
-}
-
-function makeBlit() {
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));
-  g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array([0, 0, 2, 0, 0, 2]), 2));
-  const mat = new THREE.ShaderMaterial({
-    uniforms: { uMap: { value: null } },
-    vertexShader: FULLSCREEN_VS,
-    fragmentShader: `precision mediump float; varying vec2 vUv; uniform sampler2D uMap;
-      void main(){ gl_FragColor = texture2D(uMap, vUv); }`,
-    depthTest: false,
-    depthWrite: false,
-  });
-  const mesh = new THREE.Mesh(g, mat);
-  mesh.frustumCulled = false;
-  const scene = new THREE.Scene();
-  scene.add(mesh);
-  return { scene, geometry: g, material: mat };
-}
 
 /* ── 별 ───────────────────────────────────────────────── */
 
@@ -238,6 +173,15 @@ function makeBodyMaterial() {
   });
 }
 
+/* 첫 프레임이 GPU 에 올라왔는지 알려준다. 업로드 전 텍스처는 흰색으로 샘플링되어
+   천체가 백지 판때기로 보인다. readyState 만으로는 그 순간을 거를 수 없다. */
+function watchFrames(v, onFrame) {
+  if (typeof v.requestVideoFrameCallback !== "function") return false;
+  const tick = () => { onFrame(); v.requestVideoFrameCallback(tick); };
+  v.requestVideoFrameCallback(tick);
+  return true;
+}
+
 function makeVideo(src, onReady, onFail) {
   const v = document.createElement("video");
   v.src = src;
@@ -277,7 +221,7 @@ export function initCosmos(opts) {
 
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: "high-performance" });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: "high-performance" });
     if (!renderer.getContext()) return null;
   } catch (e) {
     return null; // 호출자가 정적 폴백을 유지한다
@@ -285,15 +229,14 @@ export function initCosmos(opts) {
 
   const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   renderer.setPixelRatio(dpr);
-  renderer.setClearColor(C_VOID, 1);
+  /* 성운을 따로 그리지 않는다. 캔버스를 비워 두면 페이지 전체에 깔린
+     은하 배경이 그대로 비쳐서 다른 구간과 톤이 어긋날 일이 없다. */
+  renderer.setClearColor(0x000000, 0);
   renderer.autoClear = false;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(48, 1, 0.5, 2000);
-  const dummyCam = new THREE.Camera();
 
-  const nebula = makeNebula();
-  const blit = makeBlit();
   const stars = makeStars(TIERS[0].stars);
   scene.add(stars.points);
 
@@ -309,7 +252,8 @@ export function initCosmos(opts) {
     scene.add(mesh);
 
     const b = { mesh, mat, video: null, texture: null, failed: false, playing: false,
-                src: p.vid || null, retries: 0, stallSince: 0, dir: viewDirFor(mesh.position) };
+                src: p.vid || null, retries: 0, stallSince: 0,
+                hasFrame: false, tracksFrames: false, dir: viewDirFor(mesh.position) };
     const span = uvSpanFor(p.wide ? 1280 / 800 : 390 / 844);
     mat.uniforms.uSpan.value.set(span[0], span[1]);
 
@@ -327,6 +271,7 @@ export function initCosmos(opts) {
         }
       };
       b.video = makeVideo(p.vid, ready, fail);
+      b.tracksFrames = watchFrames(b.video, () => { b.hasFrame = true; });
       b.texture = new THREE.VideoTexture(b.video);
       b.texture.colorSpace = THREE.SRGBColorSpace;
       b.texture.minFilter = THREE.LinearFilter;
@@ -371,7 +316,8 @@ export function initCosmos(opts) {
   const STALL_WAIT = 1500;
   const STALL_RETRIES = 3;
   function updateVideoState(b, now) {
-    const ready = b.video.readyState >= 2;
+    // 프레임 콜백을 주는 브라우저에서는 실제 업로드를 기다린다. 없으면 readyState 로 만족한다.
+    const ready = b.tracksFrames ? b.hasFrame : b.video.readyState >= 2;
     b.mat.uniforms.uHasVideo.value = ready ? 1 : 0;
     if (ready) { b.stallSince = 0; b.retries = 0; return; }
     if (!b.playing) { b.stallSince = 0; return; }
@@ -380,6 +326,7 @@ export function initCosmos(opts) {
     b.stallSince = 0;
     if (b.retries >= STALL_RETRIES) { b.failed = true; return; } // 세 번 실패하면 빈 구체로 둔다
     b.retries++;
+    b.hasFrame = false; // 다시 올라오기 전까지는 그리지 않는다
     b.video.src = b.src;
     b.video.load();
     const pr = b.video.play();
@@ -388,21 +335,11 @@ export function initCosmos(opts) {
 
   /* 강등과 복귀 */
   let tier = 0;
-  let rt = null;
   function applyTier(t) {
     const cfg = TIERS[t];
     stars.geometry.setDrawRange(0, cfg.stars);
     const g = geoFor(cfg.detail);
     bodies.forEach((b) => { b.mesh.geometry = g; });
-    if (cfg.nebulaScale < 1 && !rt) {
-      rt = new THREE.WebGLRenderTarget(1, 1, { depthBuffer: false, stencilBuffer: false });
-      blit.material.uniforms.uMap.value = rt.texture;
-    } else if (cfg.nebulaScale >= 1 && rt) {
-      // 복귀했으면 축소 렌더 타깃과 블릿 패스를 도로 걷어낸다
-      rt.dispose();
-      rt = null;
-      blit.material.uniforms.uMap.value = null;
-    }
     activeKey = -1; // 동시 재생 수가 바뀌었으니 재판정
     resize();
   }
@@ -432,10 +369,7 @@ export function initCosmos(opts) {
     renderer.setSize(W, H, false);
     camera.aspect = W / H;
     camera.updateProjectionMatrix();
-    const s = TIERS[tier].nebulaScale;
-    nebula.material.uniforms.uRes.value.set(W * dpr * s, H * dpr * s);
     stars.material.uniforms.uPixelRatio.value = dpr;
-    if (rt) rt.setSize(Math.max(1, Math.round(W * dpr * s)), Math.max(1, Math.round(H * dpr * s)));
   }
   resize();
 
@@ -523,8 +457,6 @@ export function initCosmos(opts) {
     sampleFrame(dt, now);
 
     const time = (now - t0) / 1000;
-    nebula.material.uniforms.uTime.value = time;
-    nebula.material.uniforms.uProgress.value = progress;
     stars.material.uniforms.uTime.value = time;
 
     updateCamera(dt);
@@ -537,15 +469,6 @@ export function initCosmos(opts) {
     }
 
     renderer.clear();
-    if (rt) {
-      renderer.setRenderTarget(rt);
-      renderer.render(nebula.scene, dummyCam);
-      renderer.setRenderTarget(null);
-      renderer.render(blit.scene, dummyCam);
-    } else {
-      renderer.render(nebula.scene, dummyCam);
-    }
-    renderer.clearDepth();
     renderer.render(scene, camera);
 
     emit();
@@ -597,11 +520,6 @@ export function initCosmos(opts) {
       Object.keys(geometries).forEach((k) => geometries[k].dispose());
       stars.geometry.dispose();
       stars.material.dispose();
-      nebula.geometry.dispose();
-      nebula.material.dispose();
-      blit.geometry.dispose();
-      blit.material.dispose();
-      if (rt) rt.dispose();
       renderer.dispose();
     },
   };
