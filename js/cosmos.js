@@ -308,7 +308,8 @@ export function initCosmos(opts) {
     mesh.rotation.y = -Math.atan2(mesh.position.z, mesh.position.x) + Math.PI / 2;
     scene.add(mesh);
 
-    const b = { mesh, mat, video: null, texture: null, failed: false, playing: false, dir: viewDirFor(mesh.position) };
+    const b = { mesh, mat, video: null, texture: null, failed: false, playing: false,
+                src: p.vid || null, retries: 0, stallSince: 0, dir: viewDirFor(mesh.position) };
     const span = uvSpanFor(p.wide ? 1280 / 800 : 390 / 844);
     mat.uniforms.uSpan.value.set(span[0], span[1]);
 
@@ -331,7 +332,6 @@ export function initCosmos(opts) {
       b.texture.minFilter = THREE.LinearFilter;
       b.texture.generateMipmaps = false;
       mat.uniforms.uMap.value = b.texture;
-      b._fail = fail;
     }
     return b;
   });
@@ -354,13 +354,36 @@ export function initCosmos(opts) {
         if (!b.playing) {
           b.playing = true;
           const pr = b.video.play();
-          if (pr && pr.catch) pr.catch(() => b._fail && b._fail());
+          /* 거부를 영구 실패로 낙인찍지 않는다. 자동재생 정책도 저전력 모드도 나중에 풀린다.
+             진짜로 못 읽는 파일은 error 이벤트가 따로 걸러낸다. 되살리기는 스톨 감시가 맡는다. */
+          if (pr && pr.catch) pr.catch(() => {});
         }
       } else if (b.playing) {
         b.playing = false;
         b.video.pause();
       }
     });
+  }
+
+  /* 첫 프레임이 사라진 천체를 되살린다. 브라우저는 메모리가 아쉬우면 화면 밖 영상의
+     디코더를 회수하고, 그러면 readyState 가 0 으로 떨어진 채 다시 오르지 않는다.
+     재생 대상인데 계속 비어 있으면 소스를 다시 걸어준다. */
+  const STALL_WAIT = 1500;
+  const STALL_RETRIES = 3;
+  function updateVideoState(b, now) {
+    const ready = b.video.readyState >= 2;
+    b.mat.uniforms.uHasVideo.value = ready ? 1 : 0;
+    if (ready) { b.stallSince = 0; b.retries = 0; return; }
+    if (!b.playing) { b.stallSince = 0; return; }
+    if (!b.stallSince) { b.stallSince = now; return; }
+    if (now - b.stallSince < STALL_WAIT * (b.retries + 1)) return;
+    b.stallSince = 0;
+    if (b.retries >= STALL_RETRIES) { b.failed = true; return; } // 세 번 실패하면 빈 구체로 둔다
+    b.retries++;
+    b.video.src = b.src;
+    b.video.load();
+    const pr = b.video.play();
+    if (pr && pr.catch) pr.catch(() => {});
   }
 
   /* 강등과 복귀 */
@@ -510,7 +533,7 @@ export function initCosmos(opts) {
     for (let i = 0; i < n; i++) {
       const b = bodies[i];
       b.mesh.rotation.y += dt * 0.05;
-      if (b.video && !b.failed) b.mat.uniforms.uHasVideo.value = b.video.readyState >= 2 ? 1 : 0;
+      if (b.video && !b.failed) updateVideoState(b, now);
     }
 
     renderer.clear();
@@ -541,9 +564,10 @@ export function initCosmos(opts) {
       last = performance.now();
       winN = 0; judge.reset();
       bodies.forEach((b) => {
+        b.stallSince = 0;
         if (b.video && b.playing && !b.failed) {
           const pr = b.video.play();
-          if (pr && pr.catch) pr.catch(() => b._fail && b._fail());
+          if (pr && pr.catch) pr.catch(() => {}); // 탭 복귀 직후 거부도 스톨 감시가 다시 집어든다
         }
       });
       raf = requestAnimationFrame(frame);

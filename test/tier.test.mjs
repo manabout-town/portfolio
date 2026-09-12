@@ -24,7 +24,7 @@ function feed(j, fps, ms, t0, step = 100) {
   const j = createTierJudge(3);
   feed(j, 30, 4000, 0);
   assert.equal(j.tier, 1);
-  assert.equal(feed(j, 60, 7000, 10000), 0);
+  assert.equal(feed(j, 55, 7000, 10000), 0);
   assert.equal(j.tier, 0);
 }
 
