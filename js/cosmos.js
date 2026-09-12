@@ -5,10 +5,25 @@ import { createTierJudge } from "./tier.js";
 const C_NEBULA = new THREE.Color(0x8c1e52);
 const C_PLATINUM = new THREE.Color(0xd8cfa6);
 
+/* 강등해도 실루엣은 건드리지 않는다. 천체 열여섯 개를 다 합쳐도 면 수는 만 단위라
+   GPU 에 부담이 아니다. 비싼 쪽은 별 개수와 동시에 디코딩하는 영상이다. */
 const TIERS = [
   { stars: 20000, detail: 4, videos: 3 },
-  { stars: 8000, detail: 2, videos: 2 },
-  { stars: 3000, detail: 1, videos: 1 },
+  { stars: 8000, detail: 3, videos: 2 },
+  { stars: 3000, detail: 3, videos: 1 },
+];
+
+/* 천체마다 다른 얼굴을 준다. 열여섯 개가 같은 공이면 궤도가 아니라 목록으로 보인다.
+   색은 배경의 청백 별과 금빛 성간 먼지 사이에서만 고른다. 채도를 올리면 배경에서 뜬다. */
+const BODY_LOOKS = [
+  { style: 0, seed: 0.0, tint: 0x8494b2 },  // 암석 · 청회
+  { style: 1, seed: 1.7, tint: 0xc0a87f },  // 가스 · 모래
+  { style: 2, seed: 3.1, tint: 0xaec6dd },  // 얼음 · 연청
+  { style: 0, seed: 4.6, tint: 0xa08f9c },  // 암석 · 자회
+  { style: 1, seed: 6.2, tint: 0x9aaccb },  // 가스 · 청
+  { style: 2, seed: 7.9, tint: 0xc8d2e0 },  // 얼음 · 은
+  { style: 0, seed: 9.3, tint: 0xb09677 },  // 암석 · 황토
+  { style: 1, seed: 11.1, tint: 0x8894b4 }, // 가스 · 심청
 ];
 
 const BODY_RADIUS = 3.1;
@@ -121,21 +136,28 @@ function uvSpanFor(aspect) {
   return [hh * aspect, hh];
 }
 
-function makeBodyMaterial() {
+/* 천체 표면. 배경이 검정과 청백 별로 정리되어 있어 채움색도 그 톤을 따른다.
+   uStyle 0 암석 · 1 가스 · 2 얼음. uSeed 로 같은 양식 안에서 무늬를 흩는다. */
+function makeBodyMaterial(style, seed, tint) {
   return new THREE.ShaderMaterial({
     uniforms: {
+      uStyle: { value: style },
+      uSeed: { value: seed },
+      uTint: { value: tint },
       uMap: { value: null },
       uHasVideo: { value: 0 },
       uSpan: { value: new THREE.Vector2(0.25, 0.9) },
-      uFill: { value: new THREE.Color(0x6e2547) },
-      uRim: { value: C_PLATINUM.clone() },
+      uFill: { value: new THREE.Color(0x4a5570) },
+      uRim: { value: new THREE.Color(0xbcd0e8) },
       uFocus: { value: 0 },
       uOpacity: { value: 1 },
     },
     vertexShader: `
       varying vec2 vUv; varying vec3 vNormalV; varying vec3 vViewPos; varying vec3 vCenterV;
+      varying vec3 vNormalM;
       void main(){
         vUv = uv;
+        vNormalM = normalize(normal); // 표면 무늬는 천체에 붙어 함께 돈다
         vNormalV = normalize(normalMatrix * normal);
         vCenterV = (modelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
         vec4 mv = modelViewMatrix * vec4(position, 1.0);
@@ -145,8 +167,18 @@ function makeBodyMaterial() {
     fragmentShader: `
       precision highp float;
       varying vec2 vUv; varying vec3 vNormalV; varying vec3 vViewPos; varying vec3 vCenterV;
+      varying vec3 vNormalM;
       uniform sampler2D uMap; uniform float uHasVideo; uniform vec2 uSpan;
       uniform vec3 uFill; uniform vec3 uRim; uniform float uFocus; uniform float uOpacity;
+      uniform float uStyle; uniform float uSeed; uniform vec3 uTint;
+      float hs(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
+      float ns(vec3 p){
+        vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+        float a = mix(mix(hs(i), hs(i + vec3(1,0,0)), f.x), mix(hs(i + vec3(0,1,0)), hs(i + vec3(1,1,0)), f.x), f.y);
+        float b = mix(mix(hs(i + vec3(0,0,1)), hs(i + vec3(1,0,1)), f.x), mix(hs(i + vec3(0,1,1)), hs(i + vec3(1,1,1)), f.x), f.y);
+        return mix(a, b, f.z);
+      }
+      float fbm3(vec3 p){ float v = 0.0, a = 0.5; for (int i = 0; i < 4; i++) { v += a * ns(p); p *= 2.04; a *= 0.5; } return v; }
       void main(){
         vec3 N = normalize(vNormalV);
         /* 구면 UV를 쓰면 지오메트리마다 이음새 위치와 상하 방향이 달라진다.
@@ -157,16 +189,40 @@ function makeBodyMaterial() {
         vec3 R = normalize(cross(vec3(0.0, 1.0, 0.0), A));
         vec3 U = cross(A, R);
         vec2 t = vec2(dot(N, R), dot(N, U)) / uSpan * 0.5 + 0.5;
-        vec3 base = uFill;
+        /* 표면 무늬. 가스는 위도 띠, 암석은 얼룩진 대륙, 얼음은 곱게 갈라진 면. */
+        vec3 M = vNormalM;
+        vec3 sp = M * 2.6 + uSeed;
+        float grain = fbm3(sp * 1.9);
+        float pattern;
+        if (uStyle < 0.5) {
+          pattern = fbm3(sp) * 0.65 + fbm3(sp * 4.1) * 0.35;        // 암석
+        } else if (uStyle < 1.5) {
+          float lat = M.y * 3.4 + fbm3(sp * 1.3) * 1.2;             // 가스 — 띠가 난류에 밀린다
+          pattern = 0.5 + 0.5 * sin(lat * 2.6 + uSeed);
+          pattern = pow(pattern, 1.4);
+          pattern = mix(pattern, grain, 0.18);
+        } else {
+          pattern = pow(fbm3(sp * 2.4), 1.6);                        // 얼음
+        }
+        vec3 base = mix(uFill, uTint, clamp(pattern, 0.0, 1.0));
+        base *= 0.82 + 0.40 * grain; // 얼룩의 대비를 살려야 공이 아니라 지표로 읽힌다
         if (uHasVideo > 0.5 && dot(N, A) > 0.0) {
-          vec2 e = smoothstep(vec2(0.0), vec2(0.03), t) * (1.0 - smoothstep(vec2(0.97), vec2(1.0), t));
-          base = mix(uFill, texture2D(uMap, clamp(t, 0.0, 1.0)).rgb, e.x * e.y);
+          /* 영상은 표면에 난 창이다. 모서리를 둥글리고 가장자리를 넓게 풀어
+             판때기가 덧대어진 느낌 대신 표면에서 배어 나오게 한다. */
+          vec2 d = abs(t - 0.5) * 2.0;
+          float corner = length(max(d - vec2(0.72), 0.0)) / 0.28;
+          float win = 1.0 - smoothstep(0.55, 1.0, max(max(d.x, d.y) * 0.92, corner));
+          base = mix(base * 0.55, texture2D(uMap, clamp(t, 0.0, 1.0)).rgb, win);
         }
         vec3 V = normalize(-vViewPos);
         // 프레넬 림라이트가 천체를 성운에서 떼어놓는다
         float f = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.6);
-        float lam = 0.34 + 0.66 * clamp(dot(N, normalize(vec3(0.4, 0.7, 0.8))), 0.0, 1.0);
-        vec3 col = base * mix(0.62, 1.0, lam) + uRim * f * (0.55 + 0.45 * uFocus);
+        /* 한 방향에서만 빛이 온다. 반대쪽은 완전히 죽이지 않고 배경 별빛만큼 남긴다. */
+        float lam = clamp(dot(N, normalize(vec3(0.42, 0.62, 0.66))), 0.0, 1.0);
+        float lit = 0.30 + 1.10 * smoothstep(0.0, 0.68, lam);
+        /* 대기 산란 — 빛을 받는 쪽 가장자리만 얇게 밝다. 천체를 배경에서 떼어낸다. */
+        float halo = f * (0.25 + 0.75 * smoothstep(0.0, 0.5, lam));
+        vec3 col = base * lit + uRim * halo * (0.55 + 0.35 * uFocus);
         gl_FragColor = vec4(col, uOpacity);
       }`,
     transparent: true,
@@ -245,7 +301,8 @@ export function initCosmos(opts) {
   const geoFor = (d) => (geometries[d] || (geometries[d] = new THREE.IcosahedronGeometry(BODY_RADIUS, d)));
 
   const bodies = projects.map((p, i) => {
-    const mat = makeBodyMaterial();
+    const look = BODY_LOOKS[i % BODY_LOOKS.length];
+    const mat = makeBodyMaterial(look.style, look.seed, new THREE.Color(look.tint));
     const mesh = new THREE.Mesh(geoFor(TIERS[0].detail), mat);
     mesh.position.copy(orbitPosition(i, n));
     mesh.rotation.y = -Math.atan2(mesh.position.z, mesh.position.x) + Math.PI / 2;
