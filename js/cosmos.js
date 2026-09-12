@@ -1,5 +1,6 @@
 import * as THREE from "../vendor/three.module.min.js";
 import { createTierJudge } from "./tier.js";
+import { uvSpanFor, RING_INNER, RING_OUTER, MOON_ORBIT, MOON_RADIUS } from "./layout.js";
 
 /* 팔레트는 기존 버건디/골드를 심우주로 계승한 값이다. */
 const C_NEBULA = new THREE.Color(0x8c1e52);
@@ -16,15 +17,19 @@ const TIERS = [
 /* 천체마다 다른 얼굴을 준다. 열여섯 개가 같은 공이면 궤도가 아니라 목록으로 보인다.
    색은 배경의 청백 별과 금빛 성간 먼지 사이에서만 고른다. 채도를 올리면 배경에서 뜬다. */
 const BODY_LOOKS = [
-  { style: 0, seed: 0.0, tint: 0x8494b2 },  // 암석 · 청회
-  { style: 1, seed: 1.7, tint: 0xc0a87f },  // 가스 · 모래
-  { style: 2, seed: 3.1, tint: 0xaec6dd },  // 얼음 · 연청
-  { style: 0, seed: 4.6, tint: 0xa08f9c },  // 암석 · 자회
-  { style: 1, seed: 6.2, tint: 0x9aaccb },  // 가스 · 청
-  { style: 2, seed: 7.9, tint: 0xc8d2e0 },  // 얼음 · 은
-  { style: 0, seed: 9.3, tint: 0xb09677 },  // 암석 · 황토
-  { style: 1, seed: 11.1, tint: 0x8894b4 }, // 가스 · 심청
+  { style: 0, seed: 0.0, tint: 0x8494b2, ring: 0, moon: 1 },   // 암석 · 청회
+  { style: 1, seed: 1.7, tint: 0xc0a87f, ring: 1, moon: 0 },   // 가스 · 모래 · 고리
+  { style: 2, seed: 3.1, tint: 0xaec6dd, ring: 0, moon: 0 },   // 얼음 · 연청
+  { style: 0, seed: 4.6, tint: 0xa08f9c, ring: 0, moon: 1 },   // 암석 · 자회
+  { style: 1, seed: 6.2, tint: 0x9aaccb, ring: 1, moon: 0 },   // 가스 · 청 · 고리
+  { style: 2, seed: 7.9, tint: 0xc8d2e0, ring: 0, moon: 1 },   // 얼음 · 은
+  { style: 0, seed: 9.3, tint: 0xb09677, ring: 0, moon: 0 },   // 암석 · 황토
+  { style: 1, seed: 11.1, tint: 0x8894b4, ring: 1, moon: 0 },  // 가스 · 심청 · 고리
 ];
+
+/* 고리와 위성은 화면 반경의 1.3 배 바깥에서만 돈다. 영상 창은 0.6 배 안쪽이라
+   어느 각도에서도 가려지지 않는다 — 이 두 수를 건드릴 때는 그 여유부터 확인할 것. */
+// 고리·위성의 반지름은 js/layout.js 가 쥐고 있고 test/layout.test.mjs 가 지킨다.
 
 const BODY_RADIUS = 3.1;
 const ORBIT_RADIUS = 30;
@@ -56,6 +61,82 @@ const FULLSCREEN_VS = `
 varying vec2 vUv;
 void main(){ vUv = uv; gl_Position = vec4(position.xy, 1.0, 1.0); }
 `;
+
+/* ── 고리와 위성 ───────────────────────────────────── */
+
+function makeRing(tint, seed) {
+  const g = new THREE.RingGeometry(BODY_RADIUS * RING_INNER, BODY_RADIUS * RING_OUTER, 96, 1);
+  const mat = new THREE.ShaderMaterial({
+    uniforms: {
+      uTint: { value: tint },
+      uSeed: { value: seed },
+      uOpacity: { value: 1 },
+      uInner: { value: RING_INNER },
+      uOuter: { value: RING_OUTER },
+    },
+    vertexShader: `
+      varying vec3 vLocal; varying vec3 vNormalV;
+      void main(){
+        vLocal = position;
+        vNormalV = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: `
+      precision mediump float;
+      varying vec3 vLocal; varying vec3 vNormalV;
+      uniform vec3 uTint; uniform float uSeed; uniform float uOpacity;
+      uniform float uInner; uniform float uOuter;
+      float hr(float x){ return fract(sin(x * 127.1 + 311.7) * 43758.5453); }
+      void main(){
+        float r = length(vLocal.xy) / ${BODY_RADIUS.toFixed(3)};
+        float u = clamp((r - uInner) / (uOuter - uInner), 0.0, 1.0);
+        /* 얇은 띠 여러 겹과 그 사이의 빈 틈. 고른 판이면 고리로 보이지 않는다. */
+        float bands = 0.0;
+        for (int i = 0; i < 5; i++) {
+          float fi = float(i);
+          bands += (0.35 + 0.65 * hr(fi + uSeed)) * (0.5 + 0.5 * sin(u * (9.0 + fi * 7.0) + hr(fi * 3.1 + uSeed) * 6.28));
+        }
+        bands /= 5.0;
+        float gap = smoothstep(0.34, 0.40, abs(u - 0.37));   // 카시니 틈
+        float edge = smoothstep(0.0, 0.10, u) * (1.0 - smoothstep(0.88, 1.0, u));
+        float a = bands * gap * edge * uOpacity * 1.05;
+        gl_FragColor = vec4(uTint * (0.85 + 0.75 * bands), clamp(a, 0.0, 1.0));
+      }`,
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending, // 얼음 알갱이가 빛을 되쏘는 고리다. 덮지 않고 더한다.
+  });
+  return new THREE.Mesh(g, mat);
+}
+
+function makeMoon(tint) {
+  const g = new THREE.IcosahedronGeometry(BODY_RADIUS * MOON_RADIUS, 3);
+  /* 본체와 같은 광원을 쓴다. 균일한 색으로 칠하면 위성이 아니라 스티커로 보인다. */
+  const mat = new THREE.ShaderMaterial({
+    uniforms: { uTint: { value: tint }, uOpacity: { value: 1 } },
+    vertexShader: `
+      varying vec3 vN; varying vec3 vM;
+      void main(){
+        vM = normalize(position);
+        vN = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: `
+      precision mediump float;
+      varying vec3 vN; varying vec3 vM;
+      uniform vec3 uTint; uniform float uOpacity;
+      float hm(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
+      void main(){
+        float lam = clamp(dot(normalize(vN), normalize(vec3(0.42, 0.62, 0.66))), 0.0, 1.0);
+        float lit = 0.14 + 1.0 * smoothstep(0.0, 0.7, lam);
+        float pit = 0.86 + 0.28 * hm(floor(vM * 9.0));   // 성긴 크레이터
+        gl_FragColor = vec4(uTint * lit * pit, uOpacity);
+      }`,
+    transparent: true,
+  });
+  return new THREE.Mesh(g, mat);
+}
 
 /* ── 별 ───────────────────────────────────────────────── */
 
@@ -130,18 +211,13 @@ function makeStars(max) {
 // 법선 공간(-1~1의 원반)에 영상을 얹으므로 비율 보정은 반지름 비 그대로다.
 // 세로 영상은 높이를, 가로 영상은 폭을 기준으로 원반 안에 담는다.
 // 실루엣에 가까울수록 법선이 눕기 때문에 화면이 늘어난다. 원반 안쪽에만 얹는다.
-function uvSpanFor(aspect) {
-  if (aspect >= 1) { const hw = 0.60; return [hw, hw / aspect]; }
-  const hh = 0.58;
-  return [hh * aspect, hh];
-}
-
 /* 천체 표면. 배경이 검정과 청백 별로 정리되어 있어 채움색도 그 톤을 따른다.
    uStyle 0 암석 · 1 가스 · 2 얼음. uSeed 로 같은 양식 안에서 무늬를 흩는다. */
 function makeBodyMaterial(style, seed, tint) {
   return new THREE.ShaderMaterial({
     uniforms: {
       uStyle: { value: style },
+      uTime: { value: 0 },
       uSeed: { value: seed },
       uTint: { value: tint },
       uMap: { value: null },
@@ -170,7 +246,7 @@ function makeBodyMaterial(style, seed, tint) {
       varying vec3 vNormalM;
       uniform sampler2D uMap; uniform float uHasVideo; uniform vec2 uSpan;
       uniform vec3 uFill; uniform vec3 uRim; uniform float uFocus; uniform float uOpacity;
-      uniform float uStyle; uniform float uSeed; uniform vec3 uTint;
+      uniform float uStyle; uniform float uSeed; uniform vec3 uTint; uniform float uTime;
       float hs(vec3 p){ return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
       float ns(vec3 p){
         vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
@@ -195,24 +271,40 @@ function makeBodyMaterial(style, seed, tint) {
         float grain = fbm3(sp * 1.9);
         float pattern;
         if (uStyle < 0.5) {
-          pattern = fbm3(sp) * 0.65 + fbm3(sp * 4.1) * 0.35;        // 암석
+          /* 암석 — 대륙과 바다, 그 위에 얕은 크레이터. */
+          float land = fbm3(sp) * 0.65 + fbm3(sp * 4.1) * 0.35;
+          float crater = 1.0 - pow(fbm3(sp * 7.0), 2.2);
+          pattern = clamp(land * 0.82 + crater * 0.18, 0.0, 1.0);
         } else if (uStyle < 1.5) {
-          float lat = M.y * 3.4 + fbm3(sp * 1.3) * 1.2;             // 가스 — 띠가 난류에 밀린다
+          /* 가스 — 띠를 난류로 밀고, 그 위에 소용돌이 하나를 앉힌다. */
+          vec3 warp = vec3(fbm3(sp * 1.1 + uTime * 0.03), fbm3(sp * 1.1 + 4.7), fbm3(sp * 1.1 + 9.1));
+          float lat = M.y * 3.4 + (warp.x - 0.5) * 2.6;
           pattern = 0.5 + 0.5 * sin(lat * 2.6 + uSeed);
           pattern = pow(pattern, 1.4);
-          pattern = mix(pattern, grain, 0.18);
+          vec3 eye = normalize(vec3(sin(uSeed), 0.34, cos(uSeed)));
+          float spot = smoothstep(0.34, 0.0, distance(M, eye));
+          float swirl = 0.5 + 0.5 * sin(atan(M.z - eye.z, M.x - eye.x) * 3.0 + distance(M, eye) * 22.0 - uTime * 0.25);
+          pattern = mix(pattern, mix(pattern, swirl, 0.7), spot);
         } else {
-          pattern = pow(fbm3(sp * 2.4), 1.6);                        // 얼음
+          /* 얼음 — 갈라진 면 위로 옅은 구름이 흐른다. */
+          float crack = pow(fbm3(sp * 2.4), 1.6);
+          float cloud = fbm3(sp * 1.6 + vec3(uTime * 0.02, 0.0, 0.0));
+          pattern = clamp(crack * 0.72 + cloud * 0.34, 0.0, 1.0);
         }
+        float vidMask = 0.0;
         vec3 base = mix(uFill, uTint, clamp(pattern, 0.0, 1.0));
         base *= 0.82 + 0.40 * grain; // 얼룩의 대비를 살려야 공이 아니라 지표로 읽힌다
         if (uHasVideo > 0.5 && dot(N, A) > 0.0) {
-          /* 영상은 표면에 난 창이다. 모서리를 둥글리고 가장자리를 넓게 풀어
-             판때기가 덧대어진 느낌 대신 표면에서 배어 나오게 한다. */
+          /* 영상은 표면에 난 창이다. 화면은 한 픽셀도 깎지 않는다 — 페이드는 전부
+             바깥쪽에서만 일어난다. 안쪽으로 한 번이라도 물리면 UI 가 잘려 나간다. */
           vec2 d = abs(t - 0.5) * 2.0;
-          float corner = length(max(d - vec2(0.72), 0.0)) / 0.28;
-          float win = 1.0 - smoothstep(0.55, 1.0, max(max(d.x, d.y) * 0.92, corner));
-          base = mix(base * 0.55, texture2D(uMap, clamp(t, 0.0, 1.0)).rgb, win);
+          float m = max(d.x, d.y);
+          float inside = 1.0 - step(1.0, m);
+          /* 창 둘레를 어둡게 눌러 표면에 앉힌다. 밝은 화면이 판때기로 떠 보이지 않는다. */
+          float ring = smoothstep(1.85, 1.0, m) * (1.0 - inside);
+          base = mix(base, base * 0.42, ring);
+          base = mix(base, texture2D(uMap, clamp(t, 0.0, 1.0)).rgb, inside);
+          vidMask = inside;
         }
         vec3 V = normalize(-vViewPos);
         // 프레넬 림라이트가 천체를 성운에서 떼어놓는다
@@ -220,6 +312,7 @@ function makeBodyMaterial(style, seed, tint) {
         /* 한 방향에서만 빛이 온다. 반대쪽은 완전히 죽이지 않고 배경 별빛만큼 남긴다. */
         float lam = clamp(dot(N, normalize(vec3(0.42, 0.62, 0.66))), 0.0, 1.0);
         float lit = 0.30 + 1.10 * smoothstep(0.0, 0.68, lam);
+        lit = mix(lit, min(lit, 0.98), vidMask);
         /* 대기 산란 — 빛을 받는 쪽 가장자리만 얇게 밝다. 천체를 배경에서 떼어낸다. */
         float halo = f * (0.25 + 0.75 * smoothstep(0.0, 0.5, lam));
         vec3 col = base * lit + uRim * halo * (0.55 + 0.35 * uFocus);
@@ -302,13 +395,26 @@ export function initCosmos(opts) {
 
   const bodies = projects.map((p, i) => {
     const look = BODY_LOOKS[i % BODY_LOOKS.length];
-    const mat = makeBodyMaterial(look.style, look.seed, new THREE.Color(look.tint));
+    const tint = new THREE.Color(look.tint);
+    const mat = makeBodyMaterial(look.style, look.seed, tint);
     const mesh = new THREE.Mesh(geoFor(TIERS[0].detail), mat);
     mesh.position.copy(orbitPosition(i, n));
     mesh.rotation.y = -Math.atan2(mesh.position.z, mesh.position.x) + Math.PI / 2;
     scene.add(mesh);
 
-    const b = { mesh, mat, video: null, texture: null, failed: false, playing: false,
+    /* 고리와 위성은 천체에 매달아 함께 움직이게 한다. 궤도 계산이 한 곳으로 모인다. */
+    let ring = null, moon = null;
+    if (look.ring) {
+      ring = makeRing(tint.clone().lerp(new THREE.Color(0xffffff), 0.2), look.seed);
+      ring.rotation.set(-Math.PI / 2 + 0.42, 0, 0.22);
+      mesh.add(ring);
+    }
+    if (look.moon) {
+      moon = makeMoon(tint.clone().lerp(new THREE.Color(0xffffff), 0.35));
+      mesh.add(moon);
+    }
+
+    const b = { mesh, mat, ring, moon, moonPhase: i * 1.7, video: null, texture: null, failed: false, playing: false,
                 src: p.vid || null, retries: 0, stallSince: 0,
                 hasFrame: false, tracksFrames: false, dir: viewDirFor(mesh.position) };
     const span = uvSpanFor(p.wide ? 1280 / 800 : 390 / 844);
@@ -515,6 +621,7 @@ export function initCosmos(opts) {
 
     const time = (now - t0) / 1000;
     stars.material.uniforms.uTime.value = time;
+    for (let i = 0; i < n; i++) bodies[i].mat.uniforms.uTime.value = time;
 
     updateCamera(dt);
     updatePlayback(focusIndex, TIERS[tier].videos);
@@ -522,6 +629,14 @@ export function initCosmos(opts) {
     for (let i = 0; i < n; i++) {
       const b = bodies[i];
       b.mesh.rotation.y += dt * 0.05;
+      if (b.moon) {
+        /* 궤도면을 눕혀 위성이 화면 위아래로 크게 돈다. 옆으로만 돌면 카드 글자와 겹친다. */
+        const a = time * 0.22 + b.moonPhase;
+        const r = BODY_RADIUS * MOON_ORBIT;
+        b.moon.position.set(Math.cos(a) * r * 0.55, Math.sin(a) * r * 0.92, Math.sin(a * 0.7) * r * 0.35);
+        b.moon.material.uniforms.uOpacity.value = b.mat.uniforms.uOpacity.value;
+      }
+      if (b.ring) b.ring.material.uniforms.uOpacity.value = b.mat.uniforms.uOpacity.value;
       if (b.video && !b.failed) updateVideoState(b, now);
     }
 
@@ -572,6 +687,8 @@ export function initCosmos(opts) {
         }
         if (b.texture) b.texture.dispose();
         b.mat.dispose();
+        if (b.ring) { b.ring.geometry.dispose(); b.ring.material.dispose(); }
+        if (b.moon) { b.moon.geometry.dispose(); b.moon.material.dispose(); }
         scene.remove(b.mesh);
       });
       Object.keys(geometries).forEach((k) => geometries[k].dispose());
