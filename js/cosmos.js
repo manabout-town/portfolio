@@ -326,7 +326,7 @@ function makeBodyMaterial(style, seed, tint) {
    천체가 백지 판때기로 보인다. readyState 만으로는 그 순간을 거를 수 없다. */
 function watchFrames(v, onFrame) {
   if (typeof v.requestVideoFrameCallback !== "function") return false;
-  const tick = () => { onFrame(); v.requestVideoFrameCallback(tick); };
+  const tick = (now) => { onFrame(now); v.requestVideoFrameCallback(tick); };
   v.requestVideoFrameCallback(tick);
   return true;
 }
@@ -416,7 +416,7 @@ export function initCosmos(opts) {
 
     const b = { mesh, mat, ring, moon, moonPhase: i * 1.7, video: null, texture: null, failed: false, playing: false,
                 src: p.vid || null, retries: 0, stallSince: 0,
-                hasFrame: false, tracksFrames: false, dir: viewDirFor(mesh.position) };
+                lastFrameAt: 0, tracksFrames: false, dir: viewDirFor(mesh.position) };
     const span = uvSpanFor(p.wide ? 1280 / 800 : 390 / 844);
     mat.uniforms.uSpan.value.set(span[0], span[1]);
 
@@ -434,7 +434,7 @@ export function initCosmos(opts) {
         }
       };
       b.video = makeVideo(p.vid, ready, fail);
-      b.tracksFrames = watchFrames(b.video, () => { b.hasFrame = true; });
+      b.tracksFrames = watchFrames(b.video, () => { b.lastFrameAt = performance.now(); });
       b.texture = new THREE.VideoTexture(b.video);
       b.texture.colorSpace = THREE.SRGBColorSpace;
       b.texture.minFilter = THREE.LinearFilter;
@@ -478,9 +478,13 @@ export function initCosmos(opts) {
      재생 대상인데 계속 비어 있으면 소스를 다시 걸어준다. */
   const STALL_WAIT = 1500;
   const STALL_RETRIES = 3;
+  const FRESH = 600; // ms. 이보다 오래 새 프레임이 없으면 화면이 살아 있다고 보지 않는다
   function updateVideoState(b, now) {
-    // 프레임 콜백을 주는 브라우저에서는 실제 업로드를 기다린다. 없으면 readyState 로 만족한다.
-    const ready = b.tracksFrames ? b.hasFrame : b.video.readyState >= 2;
+    /* 재생 중인 영상만 그린다. 멈춘 영상은 브라우저가 디코더를 회수해도 알 길이 없고,
+       three 는 업로드된 적 없는 텍스처를 흰색으로 샘플링한다 — 그게 백지판의 정체다.
+       멈춘 천체는 표면만 보여주는 편이 흰 판때기를 띄우는 것보다 낫다. */
+    const live = b.playing && !b.video.paused && b.video.readyState >= 2;
+    const ready = live && (!b.tracksFrames || now - b.lastFrameAt < FRESH);
     b.mat.uniforms.uHasVideo.value = ready ? 1 : 0;
     if (ready) { b.stallSince = 0; b.retries = 0; return; }
     if (!b.playing) { b.stallSince = 0; return; }
@@ -489,7 +493,7 @@ export function initCosmos(opts) {
     b.stallSince = 0;
     if (b.retries >= STALL_RETRIES) { b.failed = true; return; } // 세 번 실패하면 빈 구체로 둔다
     b.retries++;
-    b.hasFrame = false; // 다시 올라오기 전까지는 그리지 않는다
+    b.lastFrameAt = 0; // 새 프레임이 올 때까지는 그리지 않는다
     b.video.src = b.src;
     b.video.load();
     const pr = b.video.play();
@@ -660,6 +664,7 @@ export function initCosmos(opts) {
       winN = 0; judge.reset();
       bodies.forEach((b) => {
         b.stallSince = 0;
+        b.lastFrameAt = 0;
         if (b.video && b.playing && !b.failed) {
           const pr = b.video.play();
           if (pr && pr.catch) pr.catch(() => {}); // 탭 복귀 직후 거부도 스톨 감시가 다시 집어든다
