@@ -303,7 +303,14 @@ function makeBodyMaterial(style, seed, tint) {
           /* 창 둘레를 어둡게 눌러 표면에 앉힌다. 밝은 화면이 판때기로 떠 보이지 않는다. */
           float ring = smoothstep(1.85, 1.0, m) * (1.0 - inside);
           base = mix(base, base * 0.42, ring);
-          base = mix(base, texture2D(uMap, clamp(t, 0.0, 1.0)).rgb, inside);
+          vec3 vid = texture2D(uMap, clamp(t, 0.0, 1.0)).rgb;
+          /* 앱 화면은 대개 흰 바탕이다. 그대로 두면 천체에 붙은 판때기로 보인다.
+             밝은 쪽만 천체 색으로 아주 조금 물들이고 최고 밝기를 눌러 표면에 앉힌다.
+             화면을 깎지는 않는다 — 잘라내는 것과 앉히는 것은 다르다. */
+          float lum = dot(vid, vec3(0.299, 0.587, 0.114));
+          vid = mix(vid, vid * mix(vec3(1.0), uTint * 1.35, 0.30), smoothstep(0.70, 1.0, lum));
+          vid = min(vid, vec3(0.94));
+          base = mix(base, vid, inside);
           vidMask = inside;
         }
         vec3 V = normalize(-vViewPos);
