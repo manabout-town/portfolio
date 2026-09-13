@@ -63,6 +63,11 @@
   .kine .ln:nth-child(2) i{animation-delay:.09s}
   .kine .ln:nth-child(3) i{animation-delay:.18s}
   @keyframes rise{to{transform:none}}
+  /* SplitText 경로가 잡히면 CSS 등장은 끄고 GSAP 이 글자 단위로 몰고 간다.
+     실패하면 이 클래스가 안 붙으므로 위의 줄 단위 CSS 연출이 그대로 남는다. */
+  .kine.js-split .ln i{transform:none;animation:none}
+  .kine.js-split{text-wrap:wrap}
+  .kine .kchar{display:inline-block;font-kerning:none;text-rendering:optimizeSpeed}
   .kine em{font-style:normal;color:transparent;-webkit-text-stroke:1.6px #8C1E52}
   .kine b{font-weight:800;background:linear-gradient(96deg,#7C8099 4%,var(--gold) 34%,var(--gold-hi) 68%,#FBF9F0 98%);
     -webkit-background-clip:text;background-clip:text;color:transparent}
@@ -1482,6 +1487,10 @@ if(COSMOS_OK) addEventListener("load",()=>{
     requestAnimationFrame(loop);
   })();
 })();
+
+/* ─────────── 히어로 제목 글자 단위 등장 ───────────
+   실패해도 제목은 나온다 — CSS 의 줄 단위 연출이 폴백이다. */
+import("./js/hero-split.js").then(m=>m.initHeroSplit()).catch(()=>{});
 
 /* ─────────── 카드 단위 스냅 + 앵커 이동 ───────────
    스냅은 ScrollTrigger 가 맡는다. 실패해도 페이지는 그대로 굴러간다 —
